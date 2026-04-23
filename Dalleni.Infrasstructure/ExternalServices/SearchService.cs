@@ -54,9 +54,11 @@ namespace Dalleni.Infrastructure.ExternalServices
                 };
 
 
-                options.SearchFields.Add(nameof(QuestionSearchDocument.Title));
-                options.SearchFields.Add(nameof(QuestionSearchDocument.Content));
-                options.SearchFields.Add(nameof(QuestionSearchDocument.Tags));
+                options.SearchFields.Add("title");
+                options.SearchFields.Add("content");
+                options.SearchFields.Add("tags");
+
+                options.HighlightFields.Add("content");
 
                 var filters = new List<string>();
 
@@ -73,14 +75,12 @@ namespace Dalleni.Infrastructure.ExternalServices
                 if (filters.Any())
                     options.Filter = string.Join(" and ", filters);
 
-                options.HighlightFields.Add(nameof(QuestionSearchDocument.Content));
-
-                options.Select.Add(nameof(QuestionSearchDocument.Id));
-                options.Select.Add(nameof(QuestionSearchDocument.Title));
-                options.Select.Add(nameof(QuestionSearchDocument.Content));
-                options.Select.Add(nameof(QuestionSearchDocument.Tags));
-                options.Select.Add(nameof(QuestionSearchDocument.CategoryName));
-                options.Select.Add(nameof(QuestionSearchDocument.Score));
+                options.Select.Add("id");
+                options.Select.Add("title");
+                options.Select.Add("content");
+                options.Select.Add("tags");
+                options.Select.Add("categoryName");
+                options.Select.Add("score");
 
                 var response = await _client.SearchAsync<QuestionSearchDocument>(query, options);
 
