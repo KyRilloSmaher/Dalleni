@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.1.1" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.28.0" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="MediatR" Version="14.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0-preview.1.25081.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dalleni.Domin\Dalleni.Domin.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Answers\" />
+    <Folder Include="Features\Categories\" />
+    <Folder Include="Features\Votes\" />
+    <Folder Include="Mappers\" />
+  </ItemGroup>
+
+</Project>

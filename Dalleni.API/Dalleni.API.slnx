@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../Dalleni.Application/Dalleni.Application.csproj" Id="2ca2d64a-53b8-471c-a5db-d5aa390e047d" />
+  <Project Path="../Dalleni.Domin/Dalleni.Domin.csproj" Id="0ac652c9-74e1-4ed1-8d36-d76d75f0aa4e" />
+  <Project Path="../Dalleni.Infrasstructure/Dalleni.Infrastructure.csproj" Id="fedb684c-7bcd-4bc0-aa50-148c17e45fe2" />
+  <Project Path="Dalleni.API.csproj" />
+</Solution>

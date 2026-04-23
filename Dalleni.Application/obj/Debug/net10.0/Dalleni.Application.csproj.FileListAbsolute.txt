@@ -1,0 +1,16 @@
+E:\Dalleni\Dalleni.Application\bin\Debug\net10.0\Dalleni.Application.deps.json
+E:\Dalleni\Dalleni.Application\bin\Debug\net10.0\Dalleni.Application.dll
+E:\Dalleni\Dalleni.Application\bin\Debug\net10.0\Dalleni.Application.pdb
+E:\Dalleni\Dalleni.Application\bin\Debug\net10.0\Dalleni.Domin.dll
+E:\Dalleni\Dalleni.Application\bin\Debug\net10.0\Dalleni.Domin.pdb
+E:\Dalleni\Dalleni.Application\obj\Debug\net10.0\Dalleni.Application.csproj.AssemblyReference.cache
+E:\Dalleni\Dalleni.Application\obj\Debug\net10.0\Dalleni.Application.GeneratedMSBuildEditorConfig.editorconfig
+E:\Dalleni\Dalleni.Application\obj\Debug\net10.0\Dalleni.Application.AssemblyInfoInputs.cache
+E:\Dalleni\Dalleni.Application\obj\Debug\net10.0\Dalleni.Application.AssemblyInfo.cs
+E:\Dalleni\Dalleni.Application\obj\Debug\net10.0\Dalleni.Application.csproj.CoreCompileInputs.cache
+E:\Dalleni\Dalleni.Application\obj\Debug\net10.0\Dalleni..B84137E2.Up2Date
+E:\Dalleni\Dalleni.Application\obj\Debug\net10.0\Dalleni.Application.dll
+E:\Dalleni\Dalleni.Application\obj\Debug\net10.0\refint\Dalleni.Application.dll
+E:\Dalleni\Dalleni.Application\obj\Debug\net10.0\Dalleni.Application.pdb
+E:\Dalleni\Dalleni.Application\obj\Debug\net10.0\ref\Dalleni.Application.dll
+E:\Dalleni\Dalleni.Application\obj\Debug\net10.0\Dalleni.Application.sourcelink.json
