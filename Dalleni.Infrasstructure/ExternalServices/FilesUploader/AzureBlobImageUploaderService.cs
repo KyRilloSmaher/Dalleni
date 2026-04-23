@@ -67,12 +67,18 @@ namespace Dalleni.Infrastructure.ExternalServices.FilesUploader
             return result.Value;
         }
 
-        public Task<bool> DeleteImageByUrlAsync(string imageUrl)
+        public async Task<bool> DeleteImageByUrlAsync(string imageUrl)
         {
-            var uri = new Uri(imageUrl);
-            var fileId = uri.AbsolutePath.TrimStart('/').Replace("images/", "");
+            if (string.IsNullOrWhiteSpace(imageUrl))
+                return false;
 
-            return DeleteImageAsync(fileId);
+            if (!Uri.TryCreate(imageUrl, UriKind.Absolute, out var uri))
+                return false;
+
+            var segments = uri.Segments;
+            var fileId = string.Join("", segments.Skip(2));
+
+            return await DeleteImageAsync(fileId);
         }
 
         public Task<string> GetImageUrlAsync(string fileId)

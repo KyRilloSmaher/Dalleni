@@ -38,15 +38,19 @@ namespace Dalleni.Application.Features.Users.Commands.UpdateRrofileImage
             var newImage = command.request.ProfileImage;
 
             // Fetch user via Identity
-            var user = await _unitOfWork.UserManager.FindByIdAsync(userId);
+            var user =  await _unitOfWork.Users.GetByIdAsync(userId,true);
             if (user == null)
                 return _responseHandler.NotFound<string>(SystemMessages.USER_NOT_FOUND);
 
             // Delete old image
             var oldImageUrl = user.ProfileImageUrl;
-            var deleteResult = await _imageUploaderService.DeleteImageByUrlAsync(oldImageUrl);
-            if (!deleteResult)
-                return _responseHandler.UnprocessableEntity<string>(SystemMessages.FAILED);
+            if (!string.IsNullOrEmpty(oldImageUrl))
+            {
+                var deleteResult = await _imageUploaderService.DeleteImageByUrlAsync(oldImageUrl);
+                if (!deleteResult)
+                    return _responseHandler.UnprocessableEntity<string>(SystemMessages.FAILED);
+            }
+
 
             // Upload new image
             var uploadResult = await _imageUploaderService.UploadImageAsync(newImage, ImageFolder.profiles);
@@ -55,9 +59,6 @@ namespace Dalleni.Application.Features.Users.Commands.UpdateRrofileImage
 
             // Update user profile image
             user.ProfileImageUrl = uploadResult.Url.ToString();
-            var updateResult = await _unitOfWork.UserManager.UpdateAsync(user);
-            if (!updateResult.Succeeded)
-                return _responseHandler.BadRequest<string>(string.Join(", ", updateResult.Errors));
 
             // Save changes through UnitOfWork
             await _unitOfWork.SaveChangesAsync(cancellationToken);
