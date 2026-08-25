@@ -77,7 +77,6 @@ namespace Dalleni.API.Controllers
         /// </summary>
         [HttpPost(APIROUTES.Authentication.RefreshToken)]
         [ProducesResponseType(typeof(Response<TokenReponseDto>), StatusCodes.Status200OK)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> RefreshTokenAsync([FromBody] TokenRequestDto dto)
         {
             var result = await _mediator.Send(new RefreshTokenAsyncCommand(dto));
