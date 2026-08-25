@@ -44,7 +44,7 @@ namespace Dalleni.Domin.Models
 
         public Guid CategoryId { get; private set; }
 
-        public Category Category { get; private set; } = null!;
+        public Category Category { get;  set; } = null!;
 
         public Guid? AcceptedAnswerId { get; private set; }
 
