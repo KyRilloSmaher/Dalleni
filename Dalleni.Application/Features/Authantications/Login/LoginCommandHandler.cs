@@ -51,6 +51,10 @@ namespace Dalleni.Application.Features.Authantications.Login
                 var minutesRemaining = (lockoutEnd - DateTimeOffset.UtcNow)?.Minutes ?? 0;
                 return _responseHandler.Unauthorized<TokenReponseDto>(string.Format(SystemMessages.ACCOUNT_LOCKED, minutesRemaining));
             }
+            if (user.IsDeleted)
+            {
+                return _responseHandler.Unauthorized<TokenReponseDto>(SystemMessages.USER_DELETED);
+            }
 
             user.RecordLogin();
             user.RefreshToken = _tokenService.GenerateRefreshToken();
