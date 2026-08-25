@@ -1,4 +1,5 @@
-﻿using Dalleni.Domin.Models;
+﻿using Dalleni.Application.DTOs.Responses.SavedQuestions;
+using Dalleni.Domin.Models;
 using Dalleni.Domin.ResponsePattern;
 using MediatR;
 using System;
@@ -7,5 +8,5 @@ using System.Text;
 
 namespace Dalleni.Application.Features.SavedQuestions.Queries.GetUserSavedQuestion
 {
-    public record GetUserSavedQuestionsQuery(Guid UserId) : IRequest<Response<IEnumerable<SavedQuestion>>>;
+    public record GetUserSavedQuestionsQuery(Guid UserId) : IRequest<Response<IEnumerable<SavedQuestionDto>>>;
 }
