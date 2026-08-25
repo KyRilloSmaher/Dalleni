@@ -45,12 +45,12 @@ namespace Dalleni.Domin.Helpers
             public const string UpdateProfile = Prefix + "update-profile";
             public const string UpdateProfileImage = Prefix + "update-profile-image";
 
-            public const string Delete = Prefix + "delete/"+SingleRoute;
+            public const string Delete = Prefix + SingleRoute + "/delete/";
             public const string Restore = Prefix + "restore";
             
             public const string GetTopUsers = Prefix + "top-users";
             public const string GetTopContributors = Prefix + "top-contributors";
-            public const string GetStats = Prefix + "stats/" + SingleRoute;
+            public const string GetStats = Prefix + SingleRoute + "/stats/";
         }
         #endregion
 
@@ -64,14 +64,14 @@ namespace Dalleni.Domin.Helpers
             public const string GetById = Prefix + SingleRoute;
             public const string GetAllPaged = Root + "/questions";
             public const string GetByCategory = Prefix + "category/" + SingleRoute;
-            public const string GetByTag = Prefix + "tag/" + SingleRoute;
+            public const string GetByTag = Prefix + SingleRoute + "/tags";
             public const string Search = Prefix + "search";
             public const string Related = Prefix + SingleRoute +"/related";
             public const string Similars = Prefix +"similars";
-            public const string GetByUser = Prefix + "user/" + SingleRoute;
-            public const string Close = Prefix + "close/" + SingleRoute;
-            public const string Reopen = Prefix + "reopen/" + SingleRoute;
-            public const string AcceptAnswer = Prefix + "accept-answer/" + SingleRoute; // id is answerId
+            public const string GetByUser = Root + "/user/" + SingleRoute + "/questions";
+            public const string Close = Prefix + SingleRoute + "/close";
+            public const string Reopen = Prefix + SingleRoute + "/reopen";
+            public const string AcceptAnswer = Prefix + SingleRoute + "/accept-answer"; // id is answerId
         }
         #endregion
 
@@ -119,9 +119,9 @@ namespace Dalleni.Domin.Helpers
         public static class savedQuestions
         {
             private const string Prefix = Root + "/user/saved-questions/";
-            public const string GetAll = Prefix + "by-user-Id";
+            public const string GetAll = Prefix;
             public const string Create = Prefix + "add";
-            public const string Remove = Prefix + "remove/" + SingleRoute;
+            public const string Remove = Prefix + SingleRoute + "/remove";
         }
         #endregion
     }
