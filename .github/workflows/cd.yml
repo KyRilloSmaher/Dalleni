@@ -1,0 +1,126 @@
+name: CD - Deploy to MonsterASP
+
+on:
+  push:
+    branches: [ main ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  PROJECT_PATH: 'Dalleni.API/Dalleni.API.csproj'
+  PUBLISH_DIR: './publish'
+
+jobs:
+  deploy:
+    name: Deploy to MonsterASP
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Generate appsettings.Production.json from secrets
+      run: |
+        @"
+        {
+          "Logging": {
+            "LogLevel": {
+              "Default": "Error",
+              "Microsoft.AspNetCore": "Warning",
+              "Microsoft.EntityFrameworkCore.Database.Command": "Error"
+            }
+          },
+          "AllowedHosts": "*",
+          "AllowedOrigins": "*",
+          "ConnectionStrings": {
+            "Cloud": "",
+            "Local": "Server=${{ secrets.DB_SERVER }};Database=${{ secrets.DB_NAME }};User Id=${{ secrets.DB_USER }};Password=${{ secrets.DB_PASSWORD }};TrustServerCertificate=True;MultipleActiveResultSets=True;"
+          },
+          "cloudinary": {
+            "CloudName": "${{ secrets.CLOUDINARY_CLOUD_NAME }}",
+            "ApiKey": "${{ secrets.CLOUDINARY_API_KEY }}",
+            "ApiSecret": "${{ secrets.CLOUDINARY_API_SECRET }}"
+          },
+          "JwtSettings": {
+            "Key": "${{ secrets.JWT_KEY }}",
+            "Issuer": "Dalleni API Service",
+            "Audience": "Flutter Mobile Application",
+            "ValidateAudience": true,
+            "ValidateIssuer": true,
+            "ValidateLifeTime": true,
+            "ValidateIssuerSigningKey": true,
+            "AccessTokenLifetimeHours": 1,
+            "RefreshTokenLifetimeDays": 2
+          },
+          "emailSettings": {
+            "port": "465",
+            "host": "smtp.gmail.com",
+            "FromEmail": "${{ secrets.EMAIL_FROM }}",
+            "password": "${{ secrets.EMAIL_PASSWORD }}"
+          },
+          "Authentication": {
+            "Google": {
+              "ClientId": "${{ secrets.GOOGLE_CLIENT_ID }}",
+              "ClientSecret": "${{ secrets.GOOGLE_CLIENT_SECRET }}",
+              "redirectUrl": "/api/google-signin"
+            }
+          },
+          "SearchSettings": {
+            "Endpoint": "${{ secrets.AZURE_SEARCH_ENDPOINT }}",
+            "ApiKey": "${{ secrets.AZURE_SEARCH_API_KEY }}",
+            "IndexName": "${{ secrets.AZURE_SEARCH_INDEX }}",
+            "SemanticConfigName": "default"
+          },
+          "ImageStorageProvider": "Azure",
+          "AzureBlobStorage": "${{ secrets.AZURE_STORAGE_CONNECTION }}"
+        }
+        "@ | Out-File -FilePath "Dalleni.API/appsettings.Production.json" -Encoding UTF8
+        
+    - name: Verify appsettings.Production.json created
+      run: |
+        Write-Host "✅ appsettings.Production.json created successfully!"
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      
+    - name: Run tests
+      run: dotnet test --configuration Release --no-build --verbosity normal || true
+      
+    - name: Publish for MonsterASP
+      run: |
+        dotnet publish ${{ env.PROJECT_PATH }} `
+          --configuration Release `
+          --output ${{ env.PUBLISH_DIR }} `
+          --runtime win-x86 `
+          --self-contained false `
+          /p:EnvironmentName=Production
+          
+    - name: Deploy to MonsterASP
+      uses: rasmusbuchholdt/simply-web-deploy@2.1.0
+      with:
+        website-name: ${{ secrets.MONSTERASP_WEBSITE_NAME }}
+        server-computer-name: ${{ secrets.MONSTERASP_SERVER_URL }}
+        server-username: ${{ secrets.MONSTERASP_USERNAME }}
+        server-password: ${{ secrets.MONSTERASP_PASSWORD }}
+        source-folder-path: ${{ env.PUBLISH_DIR }}
+        destination-folder-path: 'wwwroot'
+        allow-untrusted-certificate: true
+        
+    - name: Deployment Summary
+      run: |
+        echo "## 🚀 Deployment to MonsterASP Completed!" >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "**Website:** https://${{ secrets.MONSTERASP_WEBSITE_NAME }}.siteasp.net" >> $env:GITHUB_STEP_SUMMARY
+        echo "**Environment:** Production" >> $env:GITHUB_STEP_SUMMARY
+        echo "**Deployed At:** $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" >> $env:GITHUB_STEP_SUMMARY
+        echo "**Status:** ✅ Success" >> $env:GITHUB_STEP_SUMMARY

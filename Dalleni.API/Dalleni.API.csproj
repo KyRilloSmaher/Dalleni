@@ -4,6 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <PublishReadyToRun>false</PublishReadyToRun>
     <UserSecretsId>d1c43623-a133-4499-abde-9d4e6b1d2ecd</UserSecretsId>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>

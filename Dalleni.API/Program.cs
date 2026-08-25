@@ -16,6 +16,20 @@ using Serilog;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+
+// Load configuration with environment support
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+// Log which environment we're running in
+Console.WriteLine($"🌍 Running in {builder.Environment.EnvironmentName} environment");
+
+
 builder.Services.AddSingleton<IResponseHandler, ResponseHandler>();
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
@@ -139,12 +153,12 @@ builder.Services.AddMediatR(cfg =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseSwagger();
     app.UseSwaggerUI();
     //app.MapOpenApi();
-}
+//}
 
 app.UseHttpsRedirection();
 app.UseCors(cors);

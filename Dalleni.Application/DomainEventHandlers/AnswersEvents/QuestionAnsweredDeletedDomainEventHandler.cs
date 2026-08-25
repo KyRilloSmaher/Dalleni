@@ -35,7 +35,6 @@ namespace Dalleni.Application.DomainEventHandlers.AnswersEvents
             {
                 user.OnAnswerDeleted();
                 question.OnAnswerRemoved();
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
                 return;
             }
 

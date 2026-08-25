@@ -83,24 +83,33 @@ namespace Dalleni.Infrastructure.Persisitanse
             return createdRepository;
         }
 
-        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public async Task<int> SaveChangesAsync( CancellationToken cancellationToken = default)
         {
             if (_currentTransaction is not null)
             {
                 return await _context.SaveChangesAsync(cancellationToken);
             }
 
-            await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync(cancellationToken);
+
             try
             {
                 var result = await _context.SaveChangesAsync(cancellationToken);
+
                 await _dispatcher.DispatchAsync(_context);
+
+                await _context.SaveChangesAsync(cancellationToken);
+
                 await transaction.CommitAsync(cancellationToken);
+
                 DetachAllEntities();
+
                 return result;
             }
             catch
             {
+                await transaction.RollbackAsync(cancellationToken);
                 DetachAllEntities();
                 throw;
             }

@@ -28,8 +28,6 @@ public class QuestionCreatedDomainEventHandler: INotificationHandler<DomainEvent
         if (user != null)
         {
             user.OnQuestionCreated();
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
             return;
         }
 

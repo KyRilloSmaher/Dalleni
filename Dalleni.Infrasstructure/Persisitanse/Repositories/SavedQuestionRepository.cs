@@ -15,7 +15,7 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
 
         public async Task<IEnumerable<SavedQuestion>> GetSavedQuestionsByUserIdAsync(Guid userId, bool Astracked = false)
         {
-            var query = Context.SavedQuestions.Where(sq => sq.UserId == userId);
+            var query = Context.SavedQuestions.Include(sq=>sq.User).Include(sq=>sq.Question).Where(sq => sq.UserId == userId);
             if (Astracked)
             {
                 return await query.ToListAsync();

@@ -28,8 +28,6 @@ public class QuestionDeletedDomainEventHandle : INotificationHandler<DomainEvent
         if (user != null)
         {
             user.OnQuestionDeleted();
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
             return;
         }
 
