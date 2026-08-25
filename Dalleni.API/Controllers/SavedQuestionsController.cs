@@ -1,4 +1,5 @@
 ﻿using Dalleni.API.Bases;
+using Dalleni.Application.DTOs.Responses.SavedQuestions;
 using Dalleni.Application.Features.SavedQuestions.Commands.AddSavedQuestion;
 using Dalleni.Application.Features.SavedQuestions.Commands.DeleteSavedQuestion;
 using Dalleni.Application.Features.SavedQuestions.Queries.GetUserSavedQuestion;
@@ -24,7 +25,7 @@ namespace Dalleni.API.Controllers
 
         [HttpGet(APIROUTES.savedQuestions.GetAll)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(typeof(Response<IEnumerable<SavedQuestion>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Response<IEnumerable<SavedQuestionDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllForUserasync()
         {
             var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;

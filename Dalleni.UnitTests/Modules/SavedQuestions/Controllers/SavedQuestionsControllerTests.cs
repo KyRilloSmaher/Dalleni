@@ -1,4 +1,5 @@
 using Dalleni.API.Controllers;
+using Dalleni.Application.DTOs.Responses.SavedQuestions;
 using Dalleni.Application.Features.SavedQuestions.Commands.AddSavedQuestion;
 using Dalleni.Application.Features.SavedQuestions.Commands.DeleteSavedQuestion;
 using Dalleni.Application.Features.SavedQuestions.Queries.GetUserSavedQuestion;
@@ -18,7 +19,7 @@ public class SavedQuestionsControllerTests
     [Fact]
     public async Task GetAllForUserasync_SendsQueryWithAuthenticatedUser()
     {
-        var response = ResponseFactory.Ok<IEnumerable<SavedQuestion>>(Array.Empty<SavedQuestion>());
+        var response = ResponseFactory.Ok<IEnumerable<SavedQuestionDto>>(Array.Empty<SavedQuestionDto>());
         _mediator.Setup(x => x.Send(It.IsAny<GetUserSavedQuestionsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
         var controller = new SavedQuestionsController(_mediator.Object);
