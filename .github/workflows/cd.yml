@@ -9,6 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '10.0.x'
+  SOLUTION_PATH: 'Dalleni.API/Dalleni.API.slnx'  # Added: Solution file path
   PROJECT_PATH: 'Dalleni.API/Dalleni.API.csproj'
   PUBLISH_DIR: './publish'
 
@@ -88,13 +89,13 @@ jobs:
         Write-Host "✅ appsettings.Production.json created successfully!"
         
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ${{ env.SOLUTION_PATH }}  # Updated: Use solution file
       
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore  # Updated: Use solution file
       
     - name: Run tests
-      run: dotnet test --configuration Release --no-build --verbosity normal || true
+      run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --verbosity normal || true  # Updated: Use solution file
       
     - name: Publish for MonsterASP
       run: |
@@ -118,9 +119,14 @@ jobs:
         
     - name: Deployment Summary
       run: |
+        $website = "${{ secrets.MONSTERASP_WEBSITE_NAME }}.siteasp.net"
+        $url = "https://$website"
+        
         echo "## 🚀 Deployment to MonsterASP Completed!" >> $env:GITHUB_STEP_SUMMARY
         echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "**Website:** https://${{ secrets.MONSTERASP_WEBSITE_NAME }}.siteasp.net" >> $env:GITHUB_STEP_SUMMARY
-        echo "**Environment:** Production" >> $env:GITHUB_STEP_SUMMARY
-        echo "**Deployed At:** $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" >> $env:GITHUB_STEP_SUMMARY
-        echo "**Status:** ✅ Success" >> $env:GITHUB_STEP_SUMMARY
+        echo "| Property | Value |" >> $env:GITHUB_STEP_SUMMARY
+        echo "|----------|-------|" >> $env:GITHUB_STEP_SUMMARY
+        echo "| **Website** | [$url]($url) |" >> $env:GITHUB_STEP_SUMMARY
+        echo "| **Environment** | Production |" >> $env:GITHUB_STEP_SUMMARY
+        echo "| **Deployed At** | $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') |" >> $env:GITHUB_STEP_SUMMARY
+        echo "| **Status** | ✅ Success |" >> $env:GITHUB_STEP_SUMMARY

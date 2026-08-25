@@ -11,6 +11,7 @@ env:
   DOTNET_VERSION: '10.0.x'
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  SOLUTION_PATH: 'Dalleni.API/Dalleni.API.slnx'  # Changed to use the existing .slnx file
 
 jobs:
   build-and-test:
@@ -30,18 +31,18 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.slnx') }}  # Updated to look for .slnx
         restore-keys: |
           ${{ runner.os }}-nuget-
           
     - name: Restore dependencies
-      run: dotnet restore Dalleni.sln
+      run: dotnet restore ${{ env.SOLUTION_PATH }}  # Using the solution path variable
       
     - name: Build solution
-      run: dotnet build Dalleni.sln --configuration Release --no-restore
+      run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
       
     - name: Run tests
-      run: dotnet test Dalleni.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
       
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -78,14 +79,14 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         
     - name: Restore dependencies
-      run: dotnet restore Dalleni.sln
+      run: dotnet restore ${{ env.SOLUTION_PATH }}  # Using the solution path variable
         
     - name: Run security scan
       run: |
-        dotnet list package --vulnerable --include-transitive || true
-        dotnet list package --outdated || true
+        dotnet list ${{ env.SOLUTION_PATH }} package --vulnerable --include-transitive || true
+        dotnet list ${{ env.SOLUTION_PATH }} package --outdated || true
         
     - name: Check for vulnerabilities
       run: |
-        dotnet restore Dalleni.sln --packages ./.packages
+        dotnet restore ${{ env.SOLUTION_PATH }} --packages ./.packages
         echo "✅ Security scan completed"
