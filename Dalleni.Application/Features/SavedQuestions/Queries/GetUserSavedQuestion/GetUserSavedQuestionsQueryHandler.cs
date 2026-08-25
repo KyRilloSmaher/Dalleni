@@ -28,7 +28,8 @@ namespace Dalleni.Application.Features.SavedQuestions.Queries.GetUserSavedQuesti
 
         public async Task<Response<IEnumerable<SavedQuestion>>> Handle(GetUserSavedQuestionsQuery request, CancellationToken cancellationToken)
         {
-            var dtos = await _unitOfWork.SavedQuestionsRepository.GetSavedQuestionsByUserIdAsync(request.UserId,false);
+            var savedQuestions = await _unitOfWork.SavedQuestionsRepository.GetSavedQuestionsByUserIdAsync(request.UserId,false);
+            var dtos = _mapper.Map<IEnumerable<SavedQuestion>>(savedQuestions);
             return _responseHandler.Success(dtos, SystemMessages.DATA_RETRIEVED);
         }
     }
