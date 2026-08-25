@@ -97,5 +97,12 @@ namespace Dalleni.Domin.Helpers
         public const string FILE_TOO_LARGE = "The uploaded file is too large. Please upload a smaller file.";
         public const string FILE_NOT_FOUND = "Requested file was not found.";
 
+        // =====================
+        // 📝 Saved Questions
+        // =====================
+        public const string SAVED_QUESTION_ADDED = "Question saved successfully.";
+        public const string SAVED_QUESTION_NOT_ADDED = "Failed to save question. Please try again later.";
+        public const string QUESTION_ALREADY_SAVED = "Question is already saved.";
+
     }
 }

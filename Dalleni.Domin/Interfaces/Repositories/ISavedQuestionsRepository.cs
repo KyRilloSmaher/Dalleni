@@ -13,5 +13,6 @@ namespace Dalleni.Domin.Interfaces.Repositories
     public interface ISavedQuestionsRepository : IRepository<SavedQuestion>
     {
         Task<IEnumerable<SavedQuestion>> GetSavedQuestionsByUserIdAsync(Guid userId, bool Astracked =false);
+        Task<bool> IsQuestionSavedByUserAsync(Guid userId, Guid questionId);
     }
 }

@@ -38,5 +38,9 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
                 return await query.AsNoTracking().ToListAsync();
             }
         }
+        public async Task<bool> IsQuestionSavedByUserAsync(Guid userId, Guid questionId)
+        {
+            return await Context.SavedQuestions.AnyAsync(sq => sq.UserId == userId && sq.QuestionId == questionId);
+        }
     }
 }

@@ -25,10 +25,14 @@ namespace Dalleni.Application.Features.SavedQuestions.Commands.AddSavedQuestion
 
         public async Task<Response<SavedQuestion>> Handle(AddSavedQuestionCommand request, CancellationToken cancellationToken)
         {
+            if(await _unitOfWork.SavedQuestionsRepository.IsQuestionSavedByUserAsync(request.UserId, request.QuestionId))
+            {
+                return _responseHandler.BadRequest<SavedQuestion>(SystemMessages.QUESTION_ALREADY_SAVED);
+            }   
             var savedQuestion = SavedQuestion.Create(request.UserId, request.QuestionId);
             await _unitOfWork.SavedQuestionsRepository.AddAsync(savedQuestion);
             await _unitOfWork.SaveChangesAsync();
-            return _responseHandler.Success(savedQuestion, SystemMessages.SUCCESS);
+            return _responseHandler.Success(savedQuestion, SystemMessages.SAVED_QUESTION_ADDED);
         }
     }
 }
