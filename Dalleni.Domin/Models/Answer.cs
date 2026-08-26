@@ -124,6 +124,18 @@ namespace Dalleni.Domin.Models
             MarkUpdated();
         }
 
+        public void UnMarkAsSuccessful()
+        {
+            EnsureNotDeleted();
+
+            if (SuccessCount > 0)
+            {
+                SuccessCount--;
+                Score -= 5;
+                MarkUpdated();
+            }
+        }
+
         /// <summary>
         /// Applies a vote using incremental scoring.
         /// </summary>
