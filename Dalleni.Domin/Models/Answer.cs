@@ -164,5 +164,30 @@ namespace Dalleni.Domin.Models
         {
             RaiseDomainEvent(new QuestionAnsweredDeletedDomainEvent(Id, QuestionId, UserId));
         }
+
+        /// <summary>
+        /// Decreases the vote count and adjusts the score accordingly.
+        /// </summary>
+        public bool DecreaseVote(VoteType voteType)
+        {
+            EnsureNotDeleted();
+
+            if (voteType == VoteType.Upvote && UpVotes > 0)
+            {
+                UpVotes--;
+                Score -= 2;
+                MarkUpdated();
+                return true;
+            }
+            else if (voteType == VoteType.Downvote && DownVotes > 0)
+            {
+                DownVotes--;
+                Score += 1;
+                MarkUpdated();
+                return true;
+            }
+
+            return false; // No votes to decrease
+        }
     }
 }

@@ -181,6 +181,32 @@ namespace Dalleni.Domin.Models
             MarkUpdated();
         }
 
+         /// <summary>
+         /// Decreases the vote count and score based on the type of vote being removed.
+         /// </summary>
+         /// <param name="voteType"></param>
+        public bool DecreaseVote(VoteType voteType)
+        {
+            EnsureNotDeleted();
+
+            if (voteType == VoteType.Upvote && UpVotes > 0)
+            {
+                UpVotes--;
+                Score -= 2;
+                MarkUpdated();
+                return true;
+            }
+            else if (voteType == VoteType.Downvote && DownVotes > 0)
+            {
+                DownVotes--;
+                Score += 1;
+                MarkUpdated();
+                return true;
+            }
+
+            return false; // No votes to decrease
+        }
+
         public void Close()
         {
             EnsureNotDeleted();

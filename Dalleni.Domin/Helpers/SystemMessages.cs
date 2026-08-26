@@ -98,11 +98,17 @@ namespace Dalleni.Domin.Helpers
         public const string FILE_NOT_FOUND = "Requested file was not found.";
 
         // =====================
-        // 📝 Saved Questions
+        // 📝 Questions
         // =====================
         public const string SAVED_QUESTION_ADDED = "Question saved successfully.";
         public const string SAVED_QUESTION_NOT_ADDED = "Failed to save question. Please try again later.";
         public const string QUESTION_ALREADY_SAVED = "Question is already saved.";
+
+        public const string AlREADY_VOTED = "You have already voted on this.";
+        public const string CANNOT_VOTE_OWN_ANSWER = "You cannot vote on your own answer."; 
+
+        public const string CANNOT_VOTE_OWN_QUESTION = "You cannot vote on your own question.";
+
 
     }
 }

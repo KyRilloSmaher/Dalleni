@@ -31,7 +31,7 @@ namespace Dalleni.Application.Features.Votes.Commands.VoteAnswer
                     return _responseHandler.NotFound<bool>(SystemMessages.RECORD_NOT_FOUND);
 
                 if (answer.UserId == request.UserId)
-                    return _responseHandler.BadRequest<bool>("You cannot vote on your own answer.");
+                    return _responseHandler.BadRequest<bool>(SystemMessages.CANNOT_VOTE_OWN_ANSWER);
 
                 var existingVote = await _unitOfWork.Votes.GetUserVoteForAnswerAsync(request.UserId, request.AnswerId, true, cancellationToken);
 
@@ -39,10 +39,15 @@ namespace Dalleni.Application.Features.Votes.Commands.VoteAnswer
                 {
                     if (existingVote.Type == request.Type)
                     {
-                        _unitOfWork.Votes.Remove(existingVote);
+                        return _responseHandler.BadRequest<bool>(SystemMessages.AlREADY_VOTED);
                     }
                     else
                     {
+                        if (existingVote.Type == VoteType.Downvote)
+                            answer.DecreaseVote(VoteType.Downvote);
+                        else
+                            answer.DecreaseVote(VoteType.Upvote);
+                            
                         existingVote.UpdateType(request.Type);
                     }
                 }

@@ -31,7 +31,7 @@ namespace Dalleni.Application.Features.Votes.Commands.VoteQuestion
                     return _responseHandler.NotFound<bool>(SystemMessages.RECORD_NOT_FOUND);
 
                 if (question.UserId == request.UserId)
-                    return _responseHandler.BadRequest<bool>("You cannot vote on your own question.");
+                    return _responseHandler.BadRequest<bool>(SystemMessages.CANNOT_VOTE_OWN_QUESTION);
 
                 var existingVote = await _unitOfWork.Votes.GetUserVoteForQuestionAsync(request.UserId, request.QuestionId, true, cancellationToken);
 
@@ -39,24 +39,23 @@ namespace Dalleni.Application.Features.Votes.Commands.VoteQuestion
                 {
                     if (existingVote.Type == request.Type)
                     {
-                        // Remove vote (toggle off)
-                        _unitOfWork.Votes.Remove(existingVote);
-                        // We would need a RemoveVote method on Question to reverse the score, 
-                        // but for simplicity in this MVP I'll just prevent duplicate voting or handle update.
+                        return _responseHandler.BadRequest<bool>(SystemMessages.AlREADY_VOTED);
                     }
                     else
                     {
-                        // Switch vote
+                        if (existingVote.Type == VoteType.Downvote)
+                            question.DecreaseVote(VoteType.Downvote);
+                        else
+                            question.DecreaseVote(VoteType.Upvote);
+                            
                         existingVote.UpdateType(request.Type);
                     }
                 }
                 else
                 {
-                    // Create new vote
                     var vote = Vote.Create(request.UserId, request.Type, questionId: request.QuestionId);
                     await _unitOfWork.Votes.AddAsync(vote);
                 }
-
                 // Update Question internal state
                 question.ApplyVote(request.Type);
 
