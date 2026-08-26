@@ -29,6 +29,10 @@ namespace Dalleni.Application.Features.SavedQuestions.Commands.AddSavedQuestion
             {
                 return _responseHandler.BadRequest<SavedQuestion>(SystemMessages.QUESTION_ALREADY_SAVED);
             }   
+            if(!await _unitOfWork.Questions.ExistsAsync(request.QuestionId))
+            {
+                return _responseHandler.NotFound<SavedQuestion>(SystemMessages.NOT_FOUND);
+            }
             var savedQuestion = SavedQuestion.Create(request.UserId, request.QuestionId);
             await _unitOfWork.SavedQuestionsRepository.AddAsync(savedQuestion);
             await _unitOfWork.SaveChangesAsync();

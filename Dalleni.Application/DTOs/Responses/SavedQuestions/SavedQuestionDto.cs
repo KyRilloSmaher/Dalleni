@@ -9,7 +9,6 @@ namespace Dalleni.Application.DTOs.Responses.SavedQuestions
         public Guid UserId { get; set; }
         public Guid QuestionId { get; set; }
         public DateTime SavedAt { get; set; }
-        public UserResponseDto? User { get; set; }
         public QuestionDetailsResponseDto? Question { get; set; }
     }
 }

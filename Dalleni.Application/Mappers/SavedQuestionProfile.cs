@@ -10,7 +10,6 @@ namespace Dalleni.Application.Mappers
         public SavedQuestionProfile()
         {
             CreateMap<SavedQuestion, SavedQuestionDto>()
-                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
                 .ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question));
         }
     }
