@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Dalleni.Application.Features.Answers.Queries
 {
-    public record GetAnswersByQuestionIdQuery(Guid QuestionId) : IRequest<Response<IEnumerable<AnswerDto>>>;
+    public record GetAnswersByUserIdQuery(Guid UserId) : IRequest<Response<IEnumerable<AnswerDto>>>;
 }

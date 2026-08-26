@@ -9,29 +9,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Dalleni.Application.Features.Answers.Queries
 {
-    public class GetAnswersByQuestionIdHandler : IRequestHandler<GetAnswersByQuestionIdQuery, Response<IEnumerable<AnswerDto>>>
+    public class GetAnswersByUserIdQueryHandler : IRequestHandler<GetAnswersByUserIdQuery, Response<IEnumerable<AnswerDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IResponseHandler _responseHandler;
         private readonly IMapper _mapper;
 
-        public GetAnswersByQuestionIdHandler(IUnitOfWork unitOfWork, IResponseHandler responseHandler, IMapper mapper)
+        public GetAnswersByUserIdQueryHandler(IUnitOfWork unitOfWork, IResponseHandler responseHandler, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _responseHandler = responseHandler;
             _mapper = mapper;
         }
 
-        public async Task<Response<IEnumerable<AnswerDto>>> Handle(GetAnswersByQuestionIdQuery request, CancellationToken cancellationToken)
+        public async Task<Response<IEnumerable<AnswerDto>>> Handle(GetAnswersByUserIdQuery request, CancellationToken cancellationToken)
         {
-            var answersQuery = await _unitOfWork.Answers.GetAllAsQueryableAsync(false, cancellationToken);
-            
-            var answers = await answersQuery
-                .Where(a => a.QuestionId == request.QuestionId)
-                .Include(a => a.User)
-                .OrderByDescending(a => a.IsAccepted)
-                .ThenByDescending(a => a.Score)
-                .ToListAsync(cancellationToken);
+            var answers = await _unitOfWork.Answers.GetByUserIdAsync(request.UserId, false, cancellationToken);
+
+            if (answers == null)
+            {
+                return _responseHandler.NotFound<IEnumerable<AnswerDto>>(SystemMessages.NOT_FOUND);
+            }
 
             var dtos = _mapper.Map<IEnumerable<AnswerDto>>(answers);
             
