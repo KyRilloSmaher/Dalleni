@@ -24,6 +24,10 @@ namespace Dalleni.Application.Features.Answers.Queries
 
         public async Task<Response<IEnumerable<AnswerDto>>> Handle(GetAnswersByQuestionIdQuery request, CancellationToken cancellationToken)
         {
+            if(!await _unitOfWork.Questions.ExistsAsync(request.QuestionId, cancellationToken))
+            {
+                return _responseHandler.NotFound<IEnumerable<AnswerDto>>(SystemMessages.QUESTION_NOT_FOUND);
+            }
             var answers = await _unitOfWork.Answers.GetByQuestionIdAsync(request.QuestionId, false, cancellationToken);
 
 
