@@ -85,6 +85,13 @@ namespace Dalleni.Domin.Helpers
             public const string GetById = Prefix + SingleRoute;
             public const string GetByQuestionId =  "/question/" + SingleRoute + "/answers";
             public const string GetByUser = Root + "/user/" + SingleRoute + "/answers";
+
+            public const string MarkAsSuccessful = Prefix + SingleRoute + "/mark-as-successful";
+            public const string UnmarkAsSuccessful = Prefix + SingleRoute + "/unmark-as-successful";
+            public const string AcceptAnswer = Prefix + SingleRoute + "/accept-answer"; // id is answerId
+            public const string UnacceptAnswer = Prefix + SingleRoute + "/unaccept-answer"; // id is answerId
+            public const string GetAcceptedAnswer = "/question/" + SingleRoute + "/accepted-answer";
+
         }
         #endregion
 

@@ -1,10 +1,15 @@
 using Dalleni.API.Bases;
 using Dalleni.Application.DTOs.Requests.Answers;
 using Dalleni.Application.DTOs.Responses.Answers;
+using Dalleni.Application.Features.Answers.Commands.AcceptAnswer;
 using Dalleni.Application.Features.Answers.Commands.CreateAnswer;
 using Dalleni.Application.Features.Answers.Commands.DeleteAnswer;
+using Dalleni.Application.Features.Answers.Commands.MarkAnswerSuccessed;
+using Dalleni.Application.Features.Answers.Commands.UnAcceptAnswer;
+using Dalleni.Application.Features.Answers.Commands.UnmarkAnswerAsSuccessed;
 using Dalleni.Application.Features.Answers.Commands.UpdateAnswer;
 using Dalleni.Application.Features.Answers.Queries;
+using Dalleni.Application.Features.Answers.Queries.GetAcceptedAnswersByQuestionId;
 using Dalleni.Domin.Helpers;
 using Dalleni.Domin.ResponsePattern;
 using MediatR;
@@ -43,6 +48,13 @@ namespace Dalleni.API.Controllers
             var result = await _mediator.Send(new GetAnswersByUserIdQuery(id));
             return FinalResponse(result);
         }
+        [HttpGet(APIROUTES.Answers.GetAcceptedAnswer)]
+        [ProducesResponseType(typeof(Response<IEnumerable<AnswerDto>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAcceptedAnswerAsync([FromRoute] Guid id)
+        {
+            var result = await _mediator.Send(new GetAcceptedAnswersByQuestionIdQuery(id));
+            return FinalResponse(result);
+        }
         [HttpPost(APIROUTES.Answers.Create)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(Response<Guid>), StatusCodes.Status200OK)]
@@ -52,7 +64,45 @@ namespace Dalleni.API.Controllers
             var result = await _mediator.Send(new CreateAnswerCommand(dto, userId));
             return FinalResponse(result);
         }
+        [HttpPost(APIROUTES.Answers.MarkAsSuccessful)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> MarkAsSuccessfulAsync([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _mediator.Send(new MarkAnswerSuccessedCommand(id, userId));
+            return FinalResponse(result);
+        }
+        [HttpPost(APIROUTES.Answers.UnmarkAsSuccessful)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UnmarkAsSuccessfulAsync([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _mediator.Send(new UnmarkAnswerAsSuccessedCommand(id, userId));
+            return FinalResponse(result);
+        }
 
+        [HttpPost(APIROUTES.Answers.AcceptAnswer)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> AcceptAnswerAsync([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _mediator.Send(new AcceptAnswerCommand(id, userId));
+            return FinalResponse(result);
+        }
+
+        [HttpPost(APIROUTES.Answers.UnacceptAnswer)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UnacceptAnswerAsync([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _mediator.Send(new UnAcceptAnswerCommand(id, userId));
+            return FinalResponse(result);
+        }
+        
         [HttpPut(APIROUTES.Answers.Update)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]

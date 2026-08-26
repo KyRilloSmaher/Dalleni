@@ -109,6 +109,11 @@ namespace Dalleni.Domin.Helpers
 
         public const string CANNOT_VOTE_OWN_QUESTION = "You cannot vote on your own question.";
 
+        public const string CANNOT_UNACCEPT_OWN_ANSWER = "You cannot unaccept your own answer.";
+        public const string ANSWER_NOT_ACCEPTED = "This answer is not accepted.";
+        public const string ANSWER_ALREADY_ACCEPTED = "This answer is already accepted.";
 
+        public const string CANNOT_MARK_OWN_ANSWER = "You cannot mark your own answer as successful.";
+        public const string CANNOT_UNMARK_OWN_ANSWER = "You cannot unmark your own answer as successful.";
     }
 }
