@@ -82,7 +82,9 @@ namespace Dalleni.Domin.Helpers
             public const string Create = Root + "/answers";
             public const string Update = Prefix + SingleRoute;
             public const string Delete = Prefix + SingleRoute;
-            public const string GetByQuestionId = Prefix + "question/" + SingleRoute;
+            public const string GetById = Prefix + SingleRoute;
+            public const string GetByQuestionId =  "/question/" + SingleRoute + "/answers";
+            public const string GetByUser = Root + "/user/" + SingleRoute + "/answers";
         }
         #endregion
 

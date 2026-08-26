@@ -1,6 +1,7 @@
 namespace Dalleni.Application.DTOs.Responses.Answers
 {
-    public class AnswerDto
+    public class 
+    AnswerDto
     {
         public Guid Id { get; set; }
         public Guid QuestionId { get; set; }

@@ -22,11 +22,25 @@ namespace Dalleni.API.Controllers
         public AnswersController(IMediator mediator) : base(mediator)
         {
         }
+        [HttpGet(APIROUTES.Answers.GetById)]
+        [ProducesResponseType(typeof(Response<AnswerDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
+        {
+            var result = await _mediator.Send(new GetAnswerByIdQuery(id));
+            return FinalResponse(result);
+        }
         [HttpGet(APIROUTES.Answers.GetByQuestionId)]
         [ProducesResponseType(typeof(Response<IEnumerable<AnswerDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByQuestionIdAsync([FromRoute] Guid id)
         {
             var result = await _mediator.Send(new GetAnswersByQuestionIdQuery(id));
+            return FinalResponse(result);
+        }
+        [HttpGet(APIROUTES.Answers.GetByUser)]
+        [ProducesResponseType(typeof(Response<IEnumerable<AnswerDto>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetByUserAsync([FromRoute] Guid id)
+        {
+            var result = await _mediator.Send(new GetAnswersByUserIdQuery(id));
             return FinalResponse(result);
         }
         [HttpPost(APIROUTES.Answers.Create)]
