@@ -1,0 +1,46 @@
+using Dalleni.Domin.Helpers;
+using Dalleni.Domin.Interfaces.Handlers;
+using Dalleni.Domin.Interfaces.Repositories;
+using Dalleni.Domin.ResponsePattern;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace Dalleni.Application.Features.Answers.Commands.UnAcceptAnswer
+{
+    public record UnAcceptAnswerCommandHandler : IRequestHandler<UnAcceptAnswerCommand, Response<bool>>
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IResponseHandler _responseHandler;
+
+        public UnAcceptAnswerCommandHandler(IUnitOfWork unitOfWork, IResponseHandler responseHandler)
+        {
+            _unitOfWork = unitOfWork;
+            _responseHandler = responseHandler;
+        }
+
+        public async Task<Response<bool>> Handle(UnAcceptAnswerCommand request, CancellationToken cancellationToken)
+        {
+            var answer = await _unitOfWork.Answers.GetByIdAsync(request.id);
+
+            if (answer == null || answer.IsDeleted)
+            {
+                return _responseHandler.NotFound<bool>(SystemMessages.NOT_FOUND);
+            }
+            if (answer.UserId == request.userId)
+            {
+                return _responseHandler.BadRequest<bool>(SystemMessages.CANNOT_UNACCEPT_OWN_ANSWER);
+            }
+            if (!answer.IsAccepted)
+            {
+                return _responseHandler.BadRequest<bool>(SystemMessages.ANSWER_NOT_ACCEPTED);
+            }
+
+
+            answer.Unaccept();
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return _responseHandler.Success(true, SystemMessages.SUCCESS);
+        }
+    }
+}
