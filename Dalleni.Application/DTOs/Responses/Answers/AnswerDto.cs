@@ -13,6 +13,7 @@ namespace Dalleni.Application.DTOs.Responses.Answers
         public int UpVotes { get; set; }
         public int DownVotes { get; set; }
         public bool IsAccepted { get; set; }
+         public int SuccessCount { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }

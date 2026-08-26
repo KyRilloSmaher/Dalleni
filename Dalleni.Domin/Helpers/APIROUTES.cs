@@ -79,9 +79,9 @@ namespace Dalleni.Domin.Helpers
         public static class Answers
         {
             private const string Prefix = Root + "/answers/";
-            public const string Create = Root + "/answers";
-            public const string Update = Prefix + SingleRoute;
-            public const string Delete = Prefix + SingleRoute;
+            public const string Create = Root + "/answers" + "/create";
+            public const string Update = Prefix + SingleRoute + "/update";
+            public const string Delete = Prefix + SingleRoute + "/delete";
             public const string GetById = Prefix + SingleRoute;
             public const string GetByQuestionId =  "/question/" + SingleRoute + "/answers";
             public const string GetByUser = Root + "/user/" + SingleRoute + "/answers";
