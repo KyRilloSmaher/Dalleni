@@ -11,11 +11,18 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         }
 
         public async Task<IEnumerable<Answer>> GetByQuestionIdAsync(Guid questionId, bool asTracked = false, CancellationToken cancellationToken = default)
-            => await GetQueryWithIncludes(asTracked, x => x.User)
-                .Where(x => x.QuestionId == questionId)
-                .OrderByDescending(x => x.IsAccepted)
-                .ThenByDescending(x => x.Score)
+        {
+            var answersQuery = await GetAllAsQueryableAsync(false, cancellationToken);
+            
+            var answers = await answersQuery
+                .Where(a => a.QuestionId == questionId)
+                .Include(a => a.User)
+                .OrderByDescending(a => a.IsAccepted)
+                .ThenByDescending(a => a.Score)
                 .ToListAsync(cancellationToken);
+            
+            return answers;
+        }
 
         public async Task<IEnumerable<Answer>> GetByUserIdAsync(Guid userId, bool asTracked = false, CancellationToken cancellationToken = default)
             => await GetQueryWithIncludes(asTracked, x => x.Question)
