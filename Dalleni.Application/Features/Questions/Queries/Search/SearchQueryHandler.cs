@@ -39,7 +39,7 @@ namespace Dalleni.Application.Features.Questions.Queries.Search
             );
             var mapped = _mapper.Map<List<QuestionSummaryDto>>(searchResults);
 
-            // Since Azure already paginates, total count is tricky in Free tier
+            
             var result = PaginatedResult<QuestionSummaryDto>.Success(
                 mapped,
                 mapped.Count,

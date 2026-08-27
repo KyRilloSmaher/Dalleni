@@ -13,32 +13,40 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         // -----------------------------
         // Details
         // -----------------------------
+        // For complex includes, use a dedicated method
+        protected IQueryable<Question> GetDetailedQuestionQuery(bool asTracked = false)
+        {
+            return GetQuery(asTracked)
+                .Include(x => x.User)
+                .Include(x => x.Category)
+                .Include(x => x.QuestionTags)
+                    .ThenInclude(qt => qt.Tag)
+                .Include(x => x.Answers)
+                    .ThenInclude(a => a.User)
+                .Include(x => x.Comments);
+        }
+
         public Task<Question?> GetDetailsAsync(Guid id, bool asTracked = false, CancellationToken cancellationToken = default)
-            => GetQueryWithIncludes(asTracked,
-                    x => x.User,
-                    x => x.Category,
-                    x => x.Answers,
-                    x => x.Comments,
-                    x => x.QuestionTags)
+            => GetDetailedQuestionQuery(asTracked)
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         // -----------------------------
         // Basic Filters
         // -----------------------------
         public async Task<IEnumerable<Question>> GetByCategoryIdAsync(Guid categoryId, bool asTracked = false, CancellationToken cancellationToken = default)
-            => await GetQueryWithIncludes(asTracked, x => x.User, x => x.Category)
+            => await GetDetailedQuestionQuery(asTracked)
                 .Where(x => x.CategoryId == categoryId && !x.IsClosed)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync(cancellationToken);
 
         public async Task<IEnumerable<Question>> GetByUserIdAsync(Guid userId, bool asTracked = false, CancellationToken cancellationToken = default)
-            => await GetQueryWithIncludes(asTracked, x => x.Category)
+            => await GetDetailedQuestionQuery(asTracked)
                 .Where(x => x.UserId == userId)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync(cancellationToken);
 
         public async Task<IEnumerable<Question>> GetOpenQuestionsAsync(bool asTracked = false, CancellationToken cancellationToken = default)
-            => await GetQueryWithIncludes(asTracked, x => x.User, x => x.Category)
+            => await GetDetailedQuestionQuery(asTracked)
                 .Where(x => !x.IsClosed)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync(cancellationToken);
@@ -50,7 +58,7 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         {
             keyword = keyword.Trim();
 
-            return  GetQueryWithIncludes(false, x => x.User, x => x.Category)
+            return  GetDetailedQuestionQuery(false)
                 .Where(x =>
                     EF.Functions.Like(x.Title, $"%{keyword}%") ||
                     EF.Functions.Like(x.Content, $"%{keyword}%"))
@@ -62,14 +70,14 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         //  Top / Popular
         // -----------------------------
         public async Task<IEnumerable<Question>> GetTopQuestionsAsync(int count, CancellationToken cancellationToken = default)
-            => await GetQueryWithIncludes(false, x => x.User, x => x.Category)
+            => await GetDetailedQuestionQuery(false)
                 .OrderByDescending(x => x.Score)
                 .ThenByDescending(x => x.Views)
                 .Take(count)
                 .ToListAsync(cancellationToken);
 
         public async Task<IEnumerable<Question>> GetMostViewedAsync(int count, CancellationToken cancellationToken = default)
-            => await GetQuery()
+            => await GetDetailedQuestionQuery(false)
                 .OrderByDescending(x => x.Views)
                 .Take(count)
                 .ToListAsync(cancellationToken);
@@ -78,7 +86,7 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         //  Unanswered
         // -----------------------------
         public async Task<IEnumerable<Question>> GetUnansweredQuestionsAsync(CancellationToken cancellationToken = default)
-            => await GetQueryWithIncludes(false, x => x.User, x => x.Category)
+            => await GetDetailedQuestionQuery(false)
                 .Where(x => x.AnswersCount == 0 && !x.IsClosed)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync(cancellationToken);
@@ -87,7 +95,7 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         // Tag-Based Queries
         // -----------------------------
         public async Task<IQueryable<Question>> GetByTagIdAsync(Guid tagId, CancellationToken cancellationToken = default)
-            =>  GetQuery()
+            =>  GetDetailedQuestionQuery(false)
                 .Where(q => q.QuestionTags.Any(qt => qt.TagId == tagId))
                 .OrderByDescending(x => x.CreatedAt);
 
@@ -95,7 +103,7 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         {
             var tagIdsList = tagIds.ToList();
 
-            return await GetQuery()
+            return await GetDetailedQuestionQuery(false)
                 .Where(q => q.QuestionTags.Any(qt => tagIdsList.Contains(qt.TagId)))
                 .OrderByDescending(q => q.Score)
                 .ToListAsync(cancellationToken);
@@ -111,7 +119,7 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
                 .Select(qt => qt.TagId)
                 .ToListAsync(cancellationToken);
 
-            return await GetQuery()
+            return await GetDetailedQuestionQuery(false)
                 .Where(q => q.Id != questionId &&
                             q.QuestionTags.Any(qt => tagIds.Contains(qt.TagId)))
                 .OrderByDescending(q => q.Score)
@@ -126,7 +134,7 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         public async Task<IQueryable<Question>> GetHotQuestionsAsync( CancellationToken cancellationToken = default)
         {
 
-            return  GetQuery()
+            return  GetDetailedQuestionQuery(false)
                 .OrderByDescending(q => q.Score);
         }
     }

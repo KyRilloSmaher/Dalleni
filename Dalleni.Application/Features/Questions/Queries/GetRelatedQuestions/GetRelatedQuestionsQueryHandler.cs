@@ -33,7 +33,7 @@ namespace Dalleni.Application.Features.Questions.Queries.GetRelatedQuestions
 
             var questions = await _unitOfWork.Questions.GetRelatedQuestionsAsync(request.Id, request.Count);
             if (questions is null || questions.Count() == 0) 
-                return _responseHandler.Success<IEnumerable<QuestionDetailsResponseDto>>(null,SystemMessages.NO_DATA_FOUND);
+                return _responseHandler.Success<IEnumerable<QuestionDetailsResponseDto>>(new List<QuestionDetailsResponseDto>(),SystemMessages.NO_DATA_FOUND);
             var dtos = _mapper.Map<IEnumerable<QuestionDetailsResponseDto>>(questions);
             return _responseHandler.Success(dtos,SystemMessages.DATA_RETRIEVED);
         }

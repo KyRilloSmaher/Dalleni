@@ -2,7 +2,7 @@
 
 This document provides a comprehensive overview of the available API endpoints for the Dalleni Q&A platform. 
 
-**Base URL**: `https://localhost/api`  
+**Base URL**: `https://localhost/api/v1`  
 **Authentication**: All protected endpoints require a Bearer Token in the `Authorization` header.
 
 ---
@@ -51,29 +51,35 @@ This document provides a comprehensive overview of the available API endpoints f
 | :--- | :--- | :--- | :--- | :--- |
 | `GET` | `/questions` | **Query**: `pageNumber`, `pageSize` | Get paged questions | ❌ |
 | `GET` | `/questions/{id}` | `id` (Guid) | Get detailed question view | ❌ |
-| `POST` | `/questions` | **JSON**: `{ "title": "", "content": "", "categoryId": "guid", "tags": ["tag1", "tag2"] }` | Create question | ✅ |
-| `PUT` | `/questions/{id}` | **JSON**: `{ "title": "", "content": "", "categoryId": "guid" }` | Update question | ✅ |
-| `DELETE` | `/questions/{id}` | `id` (Guid) | Delete a question | ✅ |
 | `GET` | `/questions/tag/{id}` | `id` (TagId), **Query**: `pageNumber`, `pageSize` | Get questions by tag | ❌ |
 | `GET` | `/questions/category/{id}` | `id` (CategoryId) | Get questions by category | ❌ |
 | `GET` | `/questions/search` | **Query**: `query`, `pageNumber`, `pageSize` | Search questions | ❌ |
 | `GET` | `/questions/related` | **Query**: `id` (Guid), `count` (int) | Get related questions | ❌ |
 | `GET` | `/questions/similars` | **Query**: `Question` (string) | Get similar questions (AI-based) | ❌ |
+| `PUT` | `/questions/{id}` | **JSON**: `{ "title": "", "content": "", "categoryId": "guid" }` | Update question | ✅ |
+| `POST` | `/questions` | **JSON**: `{ "title": "", "content": "", "categoryId": "guid", "tags": ["tag1", "tag2"] }` | Create question | ✅ |
 | `POST` | `/questions/close/{id}` | `id` (Guid) | Close a question | ✅ |
 | `POST` | `/questions/reopen/{id}` | `id` (Guid) | Reopen a question | ✅ |
 | `POST` | `/questions/accept-answer/{id}` | `id` (AnswerId), **Query**: `questionId` | Mark answer as accepted | ✅ |
+| `DELETE` | `/questions/{id}` | `id` (Guid) | Delete a question | ✅ |
 
 ---
 
 ## 💬 Answers Module
 
-| Method | Endpoint | Request Body / Parameters | Description | Auth |
+| Method | Endpoint | Request Body / Parameters | Description | Authentication |
 | :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/answers/question/{id}` | `id` (Guid) | Get answers for a question | ❌ |
-| `POST` | `/answers` | **JSON**: `{ "content": "", "questionId": "guid" }` | Submit an answer | ✅ |
-| `PUT` | `/answers/{id}` | **JSON**: `{ "content": "" }` | Edit an answer | ✅ |
-| `DELETE` | `/answers/{id}` | `id` (Guid) | Delete an answer | ✅ |
-
+| `GET` | `/answers/{id}` | `id` (Guid - Path) | Get answer by ID | ❌ |
+| `GET` | `/answers/question/{id}` | `id` (Guid - Path) | Get all answers for a question | ❌ |
+| `GET` | `/answers/user/{id}` | `id` (Guid - Path) | Get all answers by a user | ❌ |
+| `GET` | `/answers/accepted/question/{id}` | `id` (Guid - Path) | Get accepted answers for a question | ❌ |
+| `POST` | `/answers` | **Body/JSON**: `{ "questionId": "Guid", "content": "string" }` | Create a new answer | ✅ |
+| `POST` | `/answers/{id}/mark-successful` | `id` (Guid - Path) | Mark an answer as successful | ✅ |
+| `POST` | `/answers/{id}/unmark-successful` | `id` (Guid - Path) | Remove success mark from an answer | ✅ |
+| `POST` | `/answers/{id}/accept` | `id` (Guid - Path) | Accept an answer | ✅ |
+| `POST` | `/answers/{id}/unaccept` | `id` (Guid - Path) | Unaccept an answer | ✅ |
+| `PUT` | `/answers/{id}` | `id` (Guid - Path) & **Body/JSON**: `{ "content": "string" }` | Update an answer | ✅ |
+| `DELETE` | `/answers/{id}` | `id` (Guid - Path) | Delete an answer | ✅ |
 ---
 
 ## 👍 Voting Module
@@ -116,4 +122,31 @@ This document provides a comprehensive overview of the available API endpoints f
 > **Token Expiry**: Access tokens are short-lived. Implement logic to use the `refresh-token` endpoint if a `401 Unauthorized` response is received.
 
 > [!TIP]
-> **Route Consistency**: All routes are prefixed with `/api`. Ensure your base client configuration includes this prefix.
+> **Route Consistency**: All routes are prefixed with `/api` then version number like `/v1`. Ensure your base client configuration includes this prefix.
+
+### 🚫 HTTP Status Codes
+
+| Status |Meaning|
+| :--- | :---  | 
+|200	| Success|
+|400	| Bad Request - Validation failed|
+|401	| Unauthorized - Missing or invalid token|
+|403	|Forbidden - Insufficient permissions|
+|404	|Not Found - Resource doesn't exist|
+| 500	|Internal Server Error|
+
+### 📝 Notes
+User Authorization: Users can only modify (update/delete) their own answers
+
+Question Ownership: Only question owners can accept/unaccept answers
+
+Unique Constraints:
+
+A question can have only one accepted answer
+
+An answer can be marked as both accepted and successful
+
+Validation: Content field is required and must not be empty
+
+All IDs: Are UUID/GUID format (3fa85f64-5717-4562-b3fc-2c963f66afa6)
+

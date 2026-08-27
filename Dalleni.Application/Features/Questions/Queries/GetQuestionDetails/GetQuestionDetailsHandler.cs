@@ -27,15 +27,7 @@ namespace Dalleni.Application.Features.Questions.Queries.GetQuestionDetails
 
             if (question == null)
                 return _responseHandler.NotFound<QuestionDetailsResponseDto>(SystemMessages.RECORD_NOT_FOUND);
-
             var dto = _mapper.Map<QuestionDetailsResponseDto>(question);
-            
-            // Add statistics or derived fields if not handled by mapper
-            dto.AuthorName = question.User?.FullName ?? "Unknown";
-            dto.AuthorProfileImageUrl = question.User?.ProfileImageUrl;
-            dto.AuthorReputation = question.User?.Reputation ?? 0;
-            dto.CategoryName = question.Category?.Name ?? "Uncategorized";
-
             return _responseHandler.Success(dto, SystemMessages.DATA_RETRIEVED);
         }
     }
