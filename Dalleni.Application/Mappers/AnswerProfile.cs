@@ -9,9 +9,9 @@ namespace Dalleni.Application.Mappers
         public AnswerProfile()
         {
             CreateMap<Answer, AnswerDto>()
-                .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : "Unknown"))
-                .ForMember(dest => dest.AuthorProfileImageUrl, opt => opt.MapFrom(src => src.User != null ? src.User.ProfileImageUrl : null))
-                .ForMember(dest => dest.AuthorReputation, opt => opt.MapFrom(src => src.User != null ? src.User.Reputation : 0));
+                        .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.User.FullName ?? "Unknown"))
+                        .ForMember(dest => dest.AuthorProfileImageUrl, opt => opt.MapFrom(src => src.User.ProfileImageUrl))
+                        .ForMember(dest => dest.AuthorReputation, opt => opt.MapFrom(src => src.User != null ? src.User.Reputation : 0));
         }
     }
 }
