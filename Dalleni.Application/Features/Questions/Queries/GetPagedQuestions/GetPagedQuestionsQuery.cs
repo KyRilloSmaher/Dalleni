@@ -5,5 +5,5 @@ using MediatR;
 
 namespace Dalleni.Application.Features.Questions.Queries.GetPagedQuestions
 {
-    public record GetPagedQuestionsQuery(PagedRequest request) : IRequest<Response<PaginatedResult<QuestionSummaryDto>>>;
+    public record GetPagedQuestionsQuery(PagedRequest request) : IRequest<Response<PaginatedResult<QuestionDetailsResponseDto>>>;
 }

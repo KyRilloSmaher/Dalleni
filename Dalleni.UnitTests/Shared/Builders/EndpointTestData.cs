@@ -91,9 +91,9 @@ public static class EndpointTestData
         };
     }
 
-    public static PaginatedResult<QuestionSummaryDto> PagedQuestions()
+    public static PaginatedResult<QuestionDetailsResponseDto> PagedQuestions()
     {
-        return PaginatedResult<QuestionSummaryDto>.Success(new[] { QuestionSummary() }, 1, 1, 10);
+        return PaginatedResult<QuestionDetailsResponseDto>.Success(new[] { QuestionDetails() }, 1, 1, 10);
     }
 
     public static PaginatedResult<TagDto> PagedTags()

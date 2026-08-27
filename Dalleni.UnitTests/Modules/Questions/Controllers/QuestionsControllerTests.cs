@@ -41,43 +41,58 @@ public class QuestionsControllerTests
     }
 
     [Fact]
-    public async Task GetAllPagedAsync_SendsPagedQuery()
-    {
-        var response = ResponseFactory.Ok<PaginatedResult<QuestionSummaryDto>>(EndpointTestData.PagedQuestions());
-        _mediator.Setup(x => x.Send(It.IsAny<GetPagedQuestionsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
-        var controller = new QuestionsController(_mediator.Object);
+public async Task GetAllPagedAsync_SendsPagedQuery()
+{
+    var response = ResponseFactory.Ok<PaginatedResult<QuestionDetailsResponseDto>>(EndpointTestData.PagedQuestions());
+    
+    // ✅ Use IRequest<Response<PaginatedResult<QuestionDetailsResponseDto>>>
+    _mediator.Setup(x => x.Send(
+        It.IsAny<IRequest<Response<PaginatedResult<QuestionDetailsResponseDto>>>>(), 
+        It.IsAny<CancellationToken>()))
+        .ReturnsAsync(response);
+    
+    var controller = new QuestionsController(_mediator.Object);
 
-        var result = await controller.GetAllPagedAsync(new PagedRequest());
+    var result = await controller.GetAllPagedAsync(new PagedRequest());
 
-        Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
-    }
+    Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
+}
 
-    [Fact]
-    public async Task GetByTagAsync_SendsGetByTagQuery()
-    {
-        var response = ResponseFactory.Ok<PaginatedResult<QuestionSummaryDto>>(EndpointTestData.PagedQuestions());
-        _mediator.Setup(x => x.Send(It.IsAny<GetByTagQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
-        var controller = new QuestionsController(_mediator.Object);
+[Fact]
+public async Task GetByTagAsync_SendsGetByTagQuery()
+{
+    var response = ResponseFactory.Ok<PaginatedResult<QuestionDetailsResponseDto>>(EndpointTestData.PagedQuestions());
+    
+    // ✅ Use IRequest<Response<PaginatedResult<QuestionDetailsResponseDto>>>
+    _mediator.Setup(x => x.Send(
+        It.IsAny<IRequest<Response<PaginatedResult<QuestionDetailsResponseDto>>>>(), 
+        It.IsAny<CancellationToken>()))
+        .ReturnsAsync(response);
+    
+    var controller = new QuestionsController(_mediator.Object);
 
-        var result = await controller.GetByTagAsync(new PagedRequest(), Guid.NewGuid());
+    var result = await controller.GetByTagAsync(new PagedRequest(), Guid.NewGuid());
 
-        Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
-    }
+    Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
+}
 
-    [Fact]
-    public async Task SearchAsync_SendsSearchQuery()
-    {
-        var response = ResponseFactory.Ok<PaginatedResult<QuestionSummaryDto>>(EndpointTestData.PagedQuestions());
-        _mediator.Setup(x => x.Send(It.IsAny<SearchQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
-        var controller = new QuestionsController(_mediator.Object);
+[Fact]
+public async Task SearchAsync_SendsSearchQuery()
+{
+    var response = ResponseFactory.Ok<PaginatedResult<QuestionDetailsResponseDto>>(EndpointTestData.PagedQuestions());
+    
+    // ✅ Use IRequest<Response<PaginatedResult<QuestionDetailsResponseDto>>>
+    _mediator.Setup(x => x.Send(
+        It.IsAny<IRequest<Response<PaginatedResult<QuestionDetailsResponseDto>>>>(), 
+        It.IsAny<CancellationToken>()))
+        .ReturnsAsync(response);
+    
+    var controller = new QuestionsController(_mediator.Object);
 
-        var result = await controller.SearchAsync(new PagedRequest(), "dotnet");
+    var result = await controller.SearchAsync(new PagedRequest(), "dotnet");
 
-        Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
-    }
+    Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
+}
 
     [Fact]
     public async Task RelatedQuestionsAsync_WhenCountIsInvalid_UsesDefaultCount()
