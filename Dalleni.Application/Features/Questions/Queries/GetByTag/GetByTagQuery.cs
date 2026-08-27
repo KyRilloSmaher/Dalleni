@@ -8,5 +8,5 @@ using System.Text;
 
 namespace Dalleni.Application.Features.Questions.Queries.GetByTag
 {
-    public record GetByTagQuery(Guid TagId , PagedRequest pagedRequest) : IRequest<Response<PaginatedResult<QuestionSummaryDto>>>;
+    public record GetByTagQuery(Guid TagId , PagedRequest pagedRequest) : IRequest<Response<PaginatedResult<QuestionDetailsResponseDto>>>;
 }

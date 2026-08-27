@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Dalleni.Application.Features.Questions.Queries.GetByTag
 {
-    public class GetByTagQueryHandler: IRequestHandler<GetByTagQuery, Response<PaginatedResult<QuestionSummaryDto>>>
+    public class GetByTagQueryHandler: IRequestHandler<GetByTagQuery, Response<PaginatedResult<QuestionDetailsResponseDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IResponseHandler _responseHandler;
@@ -25,7 +25,7 @@ namespace Dalleni.Application.Features.Questions.Queries.GetByTag
             _mapper = mapper;
         }
 
-        public async Task<Response<PaginatedResult<QuestionSummaryDto>>> Handle(GetByTagQuery request, CancellationToken cancellationToken)
+        public async Task<Response<PaginatedResult<QuestionDetailsResponseDto>>> Handle(GetByTagQuery request, CancellationToken cancellationToken)
         {
             var PagedRequest = request.pagedRequest;
             var tagId = request.TagId;
@@ -33,11 +33,11 @@ namespace Dalleni.Application.Features.Questions.Queries.GetByTag
             var tagExists = await _unitOfWork.Tags.ExistsAsync(tagId);
             if (!tagExists)
             {
-                return _responseHandler.NotFound<PaginatedResult<QuestionSummaryDto>>(SystemMessages.NOT_FOUND);
+                return _responseHandler.NotFound<PaginatedResult<QuestionDetailsResponseDto>>(SystemMessages.NOT_FOUND);
             }
 
             var Questions = await _unitOfWork.Questions.GetByTagIdAsync(tagId,cancellationToken);
-            var projected = _mapper.ProjectTo<QuestionSummaryDto>(Questions);
+            var projected = _mapper.ProjectTo<QuestionDetailsResponseDto>(Questions);
             var result = await projected.ToPaginatedListAsync(PagedRequest.PageNumber, PagedRequest.PageSize);
             return _responseHandler.Success(result, SystemMessages.DATA_RETRIEVED);
         }

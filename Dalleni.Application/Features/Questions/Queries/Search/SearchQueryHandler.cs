@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Dalleni.Application.Features.Questions.Queries.Search
 {
-    public class SearchQueryHandler : IRequestHandler<SearchQuery, Response<PaginatedResult<QuestionSummaryDto>>>
+    public class SearchQueryHandler : IRequestHandler<SearchQuery, Response<PaginatedResult<QuestionDetailsResponseDto>>>
     {
         private readonly ISearchService _searchService;
         private readonly IResponseHandler _responseHandler;
@@ -24,7 +24,7 @@ namespace Dalleni.Application.Features.Questions.Queries.Search
             _mapper = mapper;
         }
 
-        public async Task<Response<PaginatedResult<QuestionSummaryDto>>> Handle(
+        public async Task<Response<PaginatedResult<QuestionDetailsResponseDto>>> Handle(
             SearchQuery request,
             CancellationToken cancellationToken)
         {
@@ -37,10 +37,10 @@ namespace Dalleni.Application.Features.Questions.Queries.Search
                 paged.PageNumber,
                 paged.PageSize
             );
-            var mapped = _mapper.Map<List<QuestionSummaryDto>>(searchResults);
+            var mapped = _mapper.Map<List<QuestionDetailsResponseDto>>(searchResults);
 
             
-            var result = PaginatedResult<QuestionSummaryDto>.Success(
+            var result = PaginatedResult<QuestionDetailsResponseDto>.Success(
                 mapped,
                 mapped.Count,
                 paged.PageNumber,
