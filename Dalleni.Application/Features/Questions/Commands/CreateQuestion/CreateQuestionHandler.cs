@@ -50,7 +50,7 @@ namespace Dalleni.Application.Features.Questions.Commands.CreateQuestion
                     foreach (var tagName in newTagNames)
                     {                                                                             
                         var newTag = Tag.Create(tagName);
-                        await _unitOfWork.Tags.AddAsync(newTag);
+                        await _unitOfWork.Tags.AddAsync(newTag, cancellationToken);
                         existingTags.Add(newTag);
                     }
 
@@ -61,7 +61,7 @@ namespace Dalleni.Application.Features.Questions.Commands.CreateQuestion
                 }                                               
 
                 // 4. Save
-                await _unitOfWork.Questions.AddAsync(question);
+                await _unitOfWork.Questions.AddAsync(question, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 return _responseHandler.Success(question.Id, SystemMessages.RECORD_ADDED);

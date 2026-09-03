@@ -12,10 +12,13 @@ namespace Dalleni.Domin.Interfaces.Repositories
         IOfficialEntityRepository OfficialEntities { get; }
         IServiceRepository Services { get; }
         IVoteRepository Votes { get; }
+        IRatingRepository Ratings { get; }
         IRefreshTokenRepository RefreshTokens { get; }
         IOtpCodeRepository OtpCodes { get; }
         ISavedQuestionsRepository SavedQuestionsRepository { get; }
         IExternalLoginRepository ExternalLogins { get; }
+        IOfficialEntityMembershipRepository OfficialEntityMemberships { get; }
+        IOfficialEntityInvitationRepository OfficialEntityInvitations { get; }
         IUserManager<TUser> UserManager { get; }
         IRepository<TEntity> Repository<TEntity>() where TEntity : class;
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

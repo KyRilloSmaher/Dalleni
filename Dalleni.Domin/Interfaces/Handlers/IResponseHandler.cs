@@ -12,6 +12,8 @@ namespace Dalleni.Domin.Interfaces.Handlers
          Response<T> Created<T>(T data, string message = "Created successfully");
          Response<T> BadRequest<T>(string message = "Bad request");
          Response<T> Unauthorized<T>(string message = "Unauthorized");
+         Response<T> Forbidden<T>(string message = "Forbidden");
+         Response<T> Conflict<T>(string message = "Conflict");
          Response<T> NotFound<T>(string message = "Not found");
          Response<T> UnprocessableEntity<T>(string message = "Validation failed");
          Response<T> ServerError<T>(string message = "Internal server error");

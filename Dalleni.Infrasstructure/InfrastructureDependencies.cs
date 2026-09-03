@@ -67,8 +67,11 @@ namespace Dalleni.Infrasstructure
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ITagRepository, TagRepository>();
+            services.AddScoped<IRatingRepository, RatingRepository>();
             services.AddScoped<IQuestionTagRepository, QuestionTagRepository>();
             services.AddScoped<IOfficialEntityRepository, OfficialEntityRepository>();
+            services.AddScoped<IOfficialEntityMembershipRepository,OfficialEntityMembershipRepository>();
+            services.AddScoped<IOfficialEntityInvitationRepository ,OfficialEntityInvitationRepository>();
             services.AddScoped<IServiceRepository, ServiceRepository>();
             services.AddScoped<IVoteRepository, VoteRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -86,6 +89,7 @@ namespace Dalleni.Infrasstructure
             //    .AsMatchingInterfaces()
             //    .WithScopedLifetime());
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IInvitationTokenGeneratorService , InvitationTokenGeneratorService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ISearchService, SearchService>();
             services.AddScoped<AzureBlobImageUploaderService>();

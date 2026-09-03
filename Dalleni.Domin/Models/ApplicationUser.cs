@@ -15,7 +15,9 @@ namespace Dalleni.Domin.Models
             Votes = new List<Vote>();
             RefreshTokens = new List<RefreshToken>();
             ExternalLogins = new List<ExternalLogin>();
-            OfficialEntities = new List<OfficialEntity>();
+            OfficialEntityMemberships = new List<OfficialEntityMembership> ();
+            SavedQuestions = new List<SavedQuestion>();
+            Ratings = new List<Rating>();
             SecurityStamp = Guid.NewGuid().ToString("N");
         }
 
@@ -68,8 +70,9 @@ namespace Dalleni.Domin.Models
         public ICollection<Vote> Votes { get; private set; }
         public ICollection<RefreshToken> RefreshTokens { get; private set; }
         public ICollection<ExternalLogin> ExternalLogins { get; private set; }
-        public ICollection<OfficialEntity> OfficialEntities { get; private set; }
+        public ICollection<OfficialEntityMembership> OfficialEntityMemberships{ get;private set;}
         public ICollection<SavedQuestion> SavedQuestions { get; private set; }
+        public ICollection<Rating> Ratings {get;private set;}
 
         // -----------------------------
         // Factory
@@ -87,7 +90,7 @@ namespace Dalleni.Domin.Models
         }
 
         // -----------------------------
-        // 🔥 Statistics Management (DDD SAFE)
+        // Statistics Management (DDD SAFE)
         // -----------------------------
         public void OnQuestionCreated()
         {
@@ -103,23 +106,31 @@ namespace Dalleni.Domin.Models
         public void OnAnswerCreated()
         {
             AnswersCount++;
+            AdjustReputation(+5);
         }
 
         public void OnAnswerDeleted()
         {
             if (AnswersCount > 0)
+            {
                 AnswersCount--;
+                AdjustReputation(-5);
+            }
         }
 
         public void OnAnswerAccepted()
         {
             AcceptedAnswersCount++;
+            AdjustReputation(+20);
         }
 
         public void OnAnswerUnaccepted()
         {
             if (AcceptedAnswersCount > 0)
+            {
                 AcceptedAnswersCount--;
+                AdjustReputation(-20);
+            }
         }
 
         public void OnReceiveUpVote()
@@ -131,7 +142,15 @@ namespace Dalleni.Domin.Models
         public void OnReceiveDownVote()
         {
             TotalDownVotesReceived++;
-            AdjustReputation(-2);
+            AdjustReputation(-5);
+        }
+        public void OnAnswerSuccessed()
+        {
+            AdjustReputation(+15);
+        }
+        public void OnAnswerFailed()
+        {
+            AdjustReputation(-15);
         }
 
         // -----------------------------

@@ -33,7 +33,10 @@ namespace Dalleni.Infrastructure.Persisitanse
             IExternalLoginRepository externalLogins,
             IUserManager<ApplicationUser> userManager,
             ISavedQuestionsRepository savedQuestionsRepository,
-            IDomainEventDispatcher dispatcher)
+            IOfficialEntityMembershipRepository officialEntityMemberships,
+            IOfficialEntityInvitationRepository officialEntityInvitations,
+            IDomainEventDispatcher dispatcher,
+            IRatingRepository ratings)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             Users = users;
@@ -51,7 +54,10 @@ namespace Dalleni.Infrastructure.Persisitanse
             ExternalLogins = externalLogins;
             UserManager = userManager;
             SavedQuestionsRepository = savedQuestionsRepository;
+            OfficialEntityInvitations = officialEntityInvitations;
+            OfficialEntityMemberships = officialEntityMemberships;
             _dispatcher = dispatcher;
+            Ratings = ratings;
         }
 
         public IApplicationUserRepository Users { get; }
@@ -69,6 +75,12 @@ namespace Dalleni.Infrastructure.Persisitanse
         public IOtpCodeRepository OtpCodes { get; }
         public IExternalLoginRepository ExternalLogins { get; }
         public IUserManager<ApplicationUser> UserManager { get; }
+
+        public IRatingRepository Ratings  { get; }
+
+        public IOfficialEntityMembershipRepository OfficialEntityMemberships { get; }
+
+        public IOfficialEntityInvitationRepository OfficialEntityInvitations { get; }
 
         public IRepository<T> Repository<T>() where T : class
         {

@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Security.Claims;
 
 namespace Dalleni.API.Bases
 {
@@ -26,6 +27,10 @@ namespace Dalleni.API.Bases
                     return new UnauthorizedObjectResult(response);
                 case HttpStatusCode.BadRequest:
                     return new BadRequestObjectResult(response);
+                case HttpStatusCode.Forbidden:
+                    return new ObjectResult(response) { StatusCode = StatusCodes.Status403Forbidden };
+                case HttpStatusCode.Conflict:
+                    return new ConflictObjectResult(response);
                 case HttpStatusCode.NotFound:
                     return new NotFoundObjectResult(response);
                 case HttpStatusCode.Accepted:
@@ -35,6 +40,22 @@ namespace Dalleni.API.Bases
                 default:
                     return new BadRequestObjectResult(response);
             }
+        }
+
+        /// <summary>
+        /// Get the current user's ID from the claims
+        /// </summary>
+        protected Guid GetCurrentUserId()
+        {
+            var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                              ?? User?.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                throw new UnauthorizedAccessException("User ID not found in claims");
+            }
+
+            return userId;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Dalleni.Application.Features.Answers.Commands.MarkAnswerAsSuccessed
 
         public async Task<Response<bool>> Handle(MarkAnswerSuccessedCommand request, CancellationToken cancellationToken)
         {
-            var answer = await _unitOfWork.Answers.GetByIdAsync(request.id);
+            var answer = await _unitOfWork.Answers.GetByIdAsync(request.id, true, cancellationToken);
 
             if (answer == null || answer.IsDeleted)
             {
@@ -33,6 +33,8 @@ namespace Dalleni.Application.Features.Answers.Commands.MarkAnswerAsSuccessed
             }
 
             answer.MarkAsSuccessful();
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _responseHandler.Success(true, SystemMessages.SUCCESS);
 

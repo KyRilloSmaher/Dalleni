@@ -23,7 +23,7 @@ public static class EndpointTestData
 
     public static Answer Answer(Guid? questionId = null, Guid? userId = null, string content = "Answer content")
     {
-        return Dalleni.Domin.Models.Answer.Create(content, questionId ?? Guid.NewGuid(), userId ?? Guid.NewGuid());
+        return Dalleni.Domin.Models.Answer.CreateCommunityAnswer(content, questionId ?? Guid.NewGuid(), userId ?? Guid.NewGuid());
     }
 
     public static Tag Tag(string name = "dotnet")
@@ -120,5 +120,30 @@ public static class EndpointTestData
             UserName = "test.user",
             Email = "test@example.com"
         };
+    }
+
+    public static OfficialEntity OfficialEntity(string name = "Test Entity", string description = "Test Description")
+    {
+        return Dalleni.Domin.Models.OfficialEntity.Create(name, description);
+    }
+
+    public static OfficialEntityMembership Membership(Guid? entityId = null, Guid? userId = null, EntityRole role = EntityRole.Staff)
+    {
+        return OfficialEntityMembership.Create(entityId ?? Guid.NewGuid(), userId ?? Guid.NewGuid(), role);
+    }
+
+    public static OfficialEntityInvitation Invitation(Guid? entityId = null, Guid? invitedBy = null, string email = "test@example.com", EntityRole role = EntityRole.Staff)
+    {
+        return OfficialEntityInvitation.Create(entityId ?? Guid.NewGuid(), invitedBy ?? Guid.NewGuid(), email, role, "hashedtoken123", DateTime.UtcNow.AddDays(7));
+    }
+
+    public static Rating Rating(Guid? serviceId = null, Guid? userId = null, int value = 5, string? comment = "Great")
+    {
+        return Dalleni.Domin.Models.Rating.Create(serviceId ?? Guid.NewGuid(), userId ?? Guid.NewGuid(), value, comment);
+    }
+
+    public static SavedQuestion SavedQuestion(Guid? userId = null, Guid? questionId = null)
+    {
+        return Dalleni.Domin.Models.SavedQuestion.Create(userId ?? Guid.NewGuid(), questionId ?? Guid.NewGuid());
     }
 }

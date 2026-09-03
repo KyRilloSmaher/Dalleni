@@ -18,6 +18,7 @@ namespace Dalleni.Domin.Models
             Answers = new List<Answer>();
             Comments = new List<Comment>();
             QuestionTags = new List<QuestionTag>();
+            SavedQuestions = new List<SavedQuestion>();
         }
 
         private Question(string title, string content, Guid userId, Guid categoryId) : this()
@@ -29,7 +30,7 @@ namespace Dalleni.Domin.Models
             CategoryId = DomainGuard.AgainstEmpty(categoryId, nameof(categoryId));
 
             CreatedAt = DateTime.UtcNow;
-            Score = 0;
+            Score = GetHotScore();
         }
 
         public Guid Id { get; private set; }

@@ -48,6 +48,26 @@ namespace Dalleni.Infrasstructure.Handlers
             };
         }
 
+        public Response<T> Forbidden<T>(string message = "Forbidden")
+        {
+            return new Response<T>
+            {
+                StatusCode = HttpStatusCode.Forbidden,
+                Succeeded = false,
+                Message = message
+            };
+        }
+
+        public Response<T> Conflict<T>(string message = "Conflict")
+        {
+            return new Response<T>
+            {
+                StatusCode = HttpStatusCode.Conflict,
+                Succeeded = false,
+                Message = message
+            };
+        }
+
         public Response<T> NotFound<T>(string message = "Not found")
         {
             return new Response<T>

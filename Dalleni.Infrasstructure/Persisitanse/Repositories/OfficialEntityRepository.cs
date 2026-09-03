@@ -10,17 +10,17 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         {
         }
 
-        public async Task<IEnumerable<OfficialEntity>> GetByOwnerIdAsync(Guid userId, bool asTracked = false, CancellationToken cancellationToken = default)
-            => await GetQueryWithIncludes(asTracked, x => x.Services)
-                .Where(x => x.UserId == userId)
-                .OrderBy(x => x.Name)
-                .ToListAsync(cancellationToken);
+        // public async Task<IEnumerable<OfficialEntity>> GetByOwnerIdAsync(Guid userId, bool asTracked = false, CancellationToken cancellationToken = default)
+        //     => await GetQueryWithIncludes(asTracked, x => x.Services)
+        //         .Where(x => x.UserId == userId)
+        //         .OrderBy(x => x.Name)
+        //         .ToListAsync(cancellationToken);
 
-        public async Task<IEnumerable<OfficialEntity>> GetVerifiedAsync(bool asTracked = false, CancellationToken cancellationToken = default)
-            => await GetQuery(asTracked)
+        public  async Task<IQueryable<OfficialEntity>> GetVerifiedAsync(bool asTracked = false, CancellationToken cancellationToken = default)
+            =>  GetQuery(asTracked)
                 .Where(x => x.IsVerified)
                 .OrderBy(x => x.Name)
-                .ToListAsync(cancellationToken);
+                ;
 
         public async Task<IEnumerable<OfficialEntity>> SearchAsync(string keyword, CancellationToken cancellationToken = default)
             => await GetQueryWithIncludes(false, x => x.Services)

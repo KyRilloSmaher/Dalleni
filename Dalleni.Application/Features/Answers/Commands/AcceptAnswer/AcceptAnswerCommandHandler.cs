@@ -20,7 +20,7 @@ namespace Dalleni.Application.Features.Answers.Commands.AcceptAnswer
 
         public async Task<Response<bool>> Handle(AcceptAnswerCommand request, CancellationToken cancellationToken)
         {
-            var answer = await _unitOfWork.Answers.GetByIdAsync(request.id);
+            var answer = await _unitOfWork.Answers.GetByIdAsync(request.id, true, cancellationToken);
 
             if (answer == null || answer.IsDeleted)
             {
@@ -37,8 +37,9 @@ namespace Dalleni.Application.Features.Answers.Commands.AcceptAnswer
 
 
             answer.Accept();
+            
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _responseHandler.Success(true, SystemMessages.SUCCESS);
         }

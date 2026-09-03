@@ -38,6 +38,7 @@ namespace Dalleni.Domin.Helpers
         public const string INVALID_DATE_RANGE = "INVALID DATE RANGE";
         public const string OPERATION_TIMEOUT = "Time Out !";
         public const string RESERVATION_INVALID = "RESERVATION INVALID";
+        public const string UPLOAD_IMAGE_FAILED = "Failed to upload image. Please try again.";
         // =====================
         // 👤 User & Auth
         // =====================
@@ -115,5 +116,26 @@ namespace Dalleni.Domin.Helpers
 
         public const string CANNOT_MARK_OWN_ANSWER = "You cannot mark your own answer as successful.";
         public const string CANNOT_UNMARK_OWN_ANSWER = "You cannot unmark your own answer as successful.";
+       
+
+        // ==================================
+        // SERVICES
+        // ==================================
+        public const string SERVICE_NOT_FOUND = "service Not Found.";
+        // ==================================
+        // OFFICIAL ENTITIES
+        // ==================================
+        public const string OFFICIAL_ENTITY_ALREADY_EXISTS = "OFFICIALENTITY ALREADY EXISTS.";
+        public const string OFFICIAL_ENTITY_CREATED = "OFFICIALENTITY CREATED SUCCESSFULLY.";
+        public const string OFFICIAL_ENTITY_UPDATED = "OFFICIALENTITY UPDATED SUCCESSFULLY.";
+        public const string OFFICIAL_ENTITY_NOT_FOUND = " OFFICIALENTITY NOT FOUND.";
+        public const string NOT_OFFICIAL_ENTITY_MEMBER = "You are not a member of this official entity.";
+        public const string NOT_OFFICIAL_ENTITY_OWNER = "You are not the owner of this official entity.";
+        public const string NO_PERMISSION_TO_UPDATE_OFFICIAL_ENTITY = "You do not have permission to update this official entity.";
+        
+        // ===============================
+        // RATING
+        // ===============================
+        public const string AlREADY_RATED = "You have already rated this service.";
     }
 }

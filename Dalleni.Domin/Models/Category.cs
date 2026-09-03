@@ -25,6 +25,7 @@ namespace Dalleni.Domin.Models
         public int QuestionsCount { get; private set; }
 
         public ICollection<Question> Questions { get; private set; }
+         public ICollection<Service> Services { get; private set; }
 
         /// <summary>
         /// Creates a new category.

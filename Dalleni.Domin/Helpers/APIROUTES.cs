@@ -45,12 +45,14 @@ namespace Dalleni.Domin.Helpers
             public const string UpdateProfile = Prefix + "update-profile";
             public const string UpdateProfileImage = Prefix + "update-profile-image";
 
-            public const string Delete = Prefix + SingleRoute + "/delete/";
+            // ✅ FIXED: Removed trailing slash
+            public const string Delete = Prefix + SingleRoute + "/delete";
             public const string Restore = Prefix + "restore";
             
             public const string GetTopUsers = Prefix + "top-users";
             public const string GetTopContributors = Prefix + "top-contributors";
-            public const string GetStats = Prefix + SingleRoute + "/stats/";
+            // ✅ FIXED: Removed trailing slash
+            public const string GetStats = Prefix + SingleRoute + "/stats";
         }
         #endregion
 
@@ -66,12 +68,12 @@ namespace Dalleni.Domin.Helpers
             public const string GetByCategory = Prefix + "category/" + SingleRoute;
             public const string GetByTag = Prefix + SingleRoute + "/tags";
             public const string Search = Prefix + "search";
-            public const string Related = Prefix + SingleRoute +"/related";
-            public const string Similars = Prefix +"similars";
+            public const string Related = Prefix + SingleRoute + "/related";
+            public const string Similars = Prefix + "similars";
             public const string GetByUser = Root + "/user/" + SingleRoute + "/questions";
             public const string Close = Prefix + SingleRoute + "/close";
             public const string Reopen = Prefix + SingleRoute + "/reopen";
-            public const string AcceptAnswer = Prefix + SingleRoute + "/accept-answer"; // id is answerId
+            public const string AcceptAnswer = Prefix + SingleRoute + "/accept-answer";
         }
         #endregion
 
@@ -79,19 +81,18 @@ namespace Dalleni.Domin.Helpers
         public static class Answers
         {
             private const string Prefix = Root + "/answers/";
-            public const string Create = Root + "/answers" + "/create";
+            public const string Create = Root + "/answers/create";
             public const string Update = Prefix + SingleRoute + "/update";
             public const string Delete = Prefix + SingleRoute + "/delete";
             public const string GetById = Prefix + SingleRoute;
-            public const string GetByQuestionId =  "/question/" + SingleRoute + "/answers";
+            public const string GetByQuestionId = Prefix + "question/" + SingleRoute + "/answers";
             public const string GetByUser = Root + "/user/" + SingleRoute + "/answers";
 
             public const string MarkAsSuccessful = Prefix + SingleRoute + "/mark-as-successful";
             public const string UnmarkAsSuccessful = Prefix + SingleRoute + "/unmark-as-successful";
-            public const string AcceptAnswer = Prefix + SingleRoute + "/accept-answer"; // id is answerId
-            public const string UnacceptAnswer = Prefix + SingleRoute + "/unaccept-answer"; // id is answerId
-            public const string GetAcceptedAnswer = "/question/" + SingleRoute + "/accepted-answer";
-
+            public const string AcceptAnswer = Prefix + SingleRoute + "/accept-answer";
+            public const string UnacceptAnswer = Prefix + SingleRoute + "/unaccept-answer";
+            public const string GetAcceptedAnswer = Prefix + "question/" + SingleRoute + "/accepted-answer";
         }
         #endregion
 
@@ -131,6 +132,77 @@ namespace Dalleni.Domin.Helpers
             public const string GetAll = Prefix;
             public const string Create = Prefix + "add";
             public const string Remove = Prefix + SingleRoute + "/remove";
+        }
+        #endregion
+    
+        #region OfficialEntities Endpoints
+        public static class OfficialEntities
+        {
+            private const string Prefix = Root + "/official-entities/";
+            private const string AdminPrefix = Root + "/admin/official-entities/";
+            public const string GetAll = Root + "/official-entities";
+            public const string GetById = Prefix + SingleRoute;
+            public const string Search = Prefix + "search";
+            public const string Create = AdminPrefix + "create";
+            public const string Update = Prefix + SingleRoute;
+            public const string Verify = Prefix + SingleRoute + "/verify";
+            public const string Delete = Prefix + SingleRoute;
+            public const string Restore = Prefix + SingleRoute + "/restore";
+            public const string GetServices = Prefix + SingleRoute + "/services";
+            public const string GetVerifiedEntities = Prefix + "verified";
+            public const string GetMyEntities = Prefix + "my-entities";
+            public const string GetStats = Prefix + SingleRoute + "/stats";
+        }
+        #endregion
+        
+        #region OfficialEntityMembers Endpoints
+        public static class OfficialEntityMembers
+        {
+            private const string Prefix = Root + "/official-entity-members/";
+            private const string AdminPrefix = Root + "/admin/official-entity/";
+            public const string GetAll = Root + "/official-entity-members";
+            public const string GetById = Prefix + SingleRoute;
+            public const string GetByOfficialEntityId = Prefix + "official-entity/" + SingleRoute + "/members";
+            public const string CreateOwner = AdminPrefix +SingleRoute +"/create-owner";
+            public const string Update = Prefix + SingleRoute;
+            public const string Delete = Prefix + SingleRoute;
+            public const string Restore = Prefix + SingleRoute + "/restore";
+            public const string Activate = Prefix + SingleRoute + "/activate";
+            public const string Deactivate = Prefix + SingleRoute + "/deactivate";
+            public  const string inviteMember = Prefix + SingleRoute + "/invite";
+            public const string AcceptInvitation = Prefix + "invitations/accept";
+        }
+        #endregion
+        #region Service Endpoints
+        public static class Services
+        {
+            private const string Prefix = Root + "/services/";
+            public const string GetAll = Root + "/services";
+            public const string GetById = Prefix + SingleRoute;
+            public const string Search = Prefix + "search";
+            public const string Create = Prefix + "create";
+            public const string Update = Prefix + SingleRoute;
+            public const string Delete = Prefix + SingleRoute;
+            public const string Restore = Prefix + SingleRoute + "/restore";
+            public const string ToggleAvailability = Prefix + "{id}/toggle-availability";
+            public const string GetByCategory = Prefix + "category/{categoryId}";
+            public const string GetByOfficialEntity = Prefix + "official-entity/{officialEntityId}";
+        }
+        #endregion
+    
+        #region Rating Endpoints   
+        public static class Ratings
+        {
+            private const string Prefix = Root + "/ratings/";
+            public const string GetAll = Root + "/ratings";
+            public const string GetById = Prefix + SingleRoute;
+            public const string GetByServiceId = Root + "/service/" + SingleRoute + "/ratings";
+            public const string GetMyRatings = Prefix + "user-ratings";
+            public const string GetMyRatingForService = Prefix + "service/" + SingleRoute + "/user-rate";
+            public const string Create = Root + "/ratings/create";
+            public const string Update = Prefix + SingleRoute + "/update";
+            public const string Delete = Prefix + SingleRoute + "/delete";
+            public const string Restore = Prefix + SingleRoute + "/restore";
         }
         #endregion
     }

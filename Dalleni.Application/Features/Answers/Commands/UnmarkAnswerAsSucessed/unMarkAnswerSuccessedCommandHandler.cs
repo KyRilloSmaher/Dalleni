@@ -32,7 +32,7 @@ namespace Dalleni.Application.Features.Answers.Commands.UnmarkAnswerAsSuccessed
                 return _responseHandler.BadRequest<bool>(SystemMessages.CANNOT_UNMARK_OWN_ANSWER);
             }
 
-            answer.UnMarkAsSuccessful();
+            answer.UnmarkAsSuccessful();
 
             return _responseHandler.Success(true, SystemMessages.SUCCESS);
 

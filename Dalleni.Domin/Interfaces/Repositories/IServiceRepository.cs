@@ -6,5 +6,6 @@ namespace Dalleni.Domin.Interfaces.Repositories
     {
         Task<IEnumerable<Service>> GetByOfficialEntityIdAsync(Guid officialEntityId, bool asTracked = false, CancellationToken cancellationToken = default);
         Task<IEnumerable<Service>> SearchAsync(string keyword, CancellationToken cancellationToken = default);
+        Task<IEnumerable<Service>> getByCategoryAsync(Guid CategoryId,CancellationToken cancellationToken = default);
     }
 }

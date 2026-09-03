@@ -26,6 +26,9 @@ namespace Dalleni.Infrastructure.Persisitanse
         public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
         public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
         public DbSet<SavedQuestion> SavedQuestions => Set<SavedQuestion>();
+        public DbSet<Rating> Ratings => Set<Rating>();
+        public DbSet<OfficialEntityMembership> OfficialEntityMemberships => Set<OfficialEntityMembership>();
+        public DbSet<OfficialEntityInvitation> OfficialEntityInvitations => Set<OfficialEntityInvitation>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
