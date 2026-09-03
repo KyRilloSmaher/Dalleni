@@ -2267,3 +2267,458 @@ INSERT [dbo].[QuestionTags] ([QuestionId], [TagId], [CreatedAt], [UpdatedAt], [I
 GO
 INSERT [dbo].[QuestionTags] ([QuestionId], [TagId], [CreatedAt], [UpdatedAt], [IsDeleted], [DeletedAt]) VALUES (N'7a760113-2b01-4018-9606-5da902308049', N'64dd912b-d6e1-4f65-9d5d-0ac9c7eb2062', CAST(N'2026-04-25T13:22:18.84167' AS DateTime2), NULL, 0, NULL)
 GO
+
+
+
+-- ============================================================
+-- OFFICIAL ENTITIES
+-- ============================================================
+
+INSERT [dbo].[OfficialEntities]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [Name],
+    [Description],
+    [IsVerified],
+    [LogoUrl],
+    [WebsiteUrl]
+)
+VALUES
+(
+    N'10000000-0000-0000-0000-000000000001',
+    CAST(N'2026-04-15T18:00:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'وزارة الداخلية',
+    N'الجهة الرسمية المسؤولة عن العديد من الخدمات الحكومية المتعلقة بالأحوال المدنية والمرور.',
+    1,
+    NULL,
+    N'https://moi.gov.eg'
+)
+GO
+
+INSERT [dbo].[OfficialEntities]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [Name],
+    [Description],
+    [IsVerified],
+    [LogoUrl],
+    [WebsiteUrl]
+)
+VALUES
+(
+    N'10000000-0000-0000-0000-000000000002',
+    CAST(N'2026-04-15T18:05:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'وزارة التربية والتعليم',
+    N'الجهة الرسمية المسؤولة عن خدمات التعليم قبل الجامعي في مصر.',
+    1,
+    NULL,
+    N'https://moe.gov.eg'
+)
+GO
+
+INSERT [dbo].[OfficialEntities]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [Name],
+    [Description],
+    [IsVerified],
+    [LogoUrl],
+    [WebsiteUrl]
+)
+VALUES
+(
+    N'10000000-0000-0000-0000-000000000003',
+    CAST(N'2026-04-15T18:10:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'وزارة الصحة والسكان',
+    N'الجهة الرسمية المسؤولة عن الخدمات الصحية والرعاية الطبية الحكومية.',
+    1,
+    NULL,
+    N'https://mohp.gov.eg'
+)
+GO
+
+
+-- ============================================================
+-- OFFICIAL ENTITY MEMBERSHIPS
+-- Existing users:
+--
+-- 9a58d7d1-87c7-42c8-00de-08de97263e92 = KOKO79
+-- 6534aee0-e4f5-41e7-af5e-08de95adab8d = Kero79
+-- b001e6a7-11c6-42b2-e99a-08de9625556f = Kyrillos
+-- 06bbca85-d1c4-452f-0dae-08de9732a7e9 = KMKM123
+-- ============================================================
+
+INSERT [dbo].[OfficialEntityMembership]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [OfficialEntityId],
+    [UserId],
+    [Role],
+    [IsActive]
+)
+VALUES
+(
+    N'20000000-0000-0000-0000-000000000001',
+    CAST(N'2026-04-15T18:15:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'10000000-0000-0000-0000-000000000001',
+    N'9a58d7d1-87c7-42c8-00de-08de97263e92',
+    0,
+    1
+)
+GO
+
+INSERT [dbo].[OfficialEntityMembership]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [OfficialEntityId],
+    [UserId],
+    [Role],
+    [IsActive]
+)
+VALUES
+(
+    N'20000000-0000-0000-0000-000000000002',
+    CAST(N'2026-04-15T18:16:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'10000000-0000-0000-0000-000000000001',
+    N'6534aee0-e4f5-41e7-af5e-08de95adab8d',
+    3,
+    1
+)
+GO
+
+INSERT [dbo].[OfficialEntityMembership]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [OfficialEntityId],
+    [UserId],
+    [Role],
+    [IsActive]
+)
+VALUES
+(
+    N'20000000-0000-0000-0000-000000000003',
+    CAST(N'2026-04-15T18:17:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'10000000-0000-0000-0000-000000000002',
+    N'b001e6a7-11c6-42b2-e99a-08de9625556f',
+    0,
+    1
+)
+GO
+
+INSERT [dbo].[OfficialEntityMembership]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [OfficialEntityId],
+    [UserId],
+    [Role],
+    [IsActive]
+)
+VALUES
+(
+    N'20000000-0000-0000-0000-000000000004',
+    CAST(N'2026-04-15T18:18:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'10000000-0000-0000-0000-000000000003',
+    N'06bbca85-d1c4-452f-0dae-08de9732a7e9',
+    0,
+    1
+)
+GO
+
+
+-- ============================================================
+-- SERVICES
+-- Category IDs from your existing data:
+--
+-- 001 = الأحوال المدنية
+-- 002 = المرور
+-- 003 = التعليم
+-- 004 = الصحة
+-- ============================================================
+
+INSERT [dbo].[Services]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [Name],
+    [Description],
+    [RequiredDocuments],
+    [Fees],
+    [CategoryId],
+    [IsAvailable],
+    [AverageRating],
+    [OfficialEntityId]
+)
+VALUES
+(
+    N'30000000-0000-0000-0000-000000000001',
+    CAST(N'2026-04-15T18:20:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'استخراج بطاقة رقم قومي لأول مرة',
+    N'خدمة استخراج بطاقة الرقم القومي للمواطنين لأول مرة.',
+    N'شهادة الميلاد المميكنة، مستند إثبات محل الإقامة',
+    CAST(50.00 AS Decimal(18,2)),
+    N'5e0b657a-5f9a-4e38-b5a1-987654321001',
+    1,
+    0,
+    N'10000000-0000-0000-0000-000000000001'
+)
+GO
+
+INSERT [dbo].[Services]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [Name],
+    [Description],
+    [RequiredDocuments],
+    [Fees],
+    [CategoryId],
+    [IsAvailable],
+    [AverageRating],
+    [OfficialEntityId]
+)
+VALUES
+(
+    N'30000000-0000-0000-0000-000000000002',
+    CAST(N'2026-04-15T18:21:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'تجديد بطاقة الرقم القومي',
+    N'خدمة تجديد بطاقة الرقم القومي المنتهية أو التالفة.',
+    N'بطاقة الرقم القومي القديمة، مستند إثبات محل الإقامة',
+    CAST(50.00 AS Decimal(18,2)),
+    N'5e0b657a-5f9a-4e38-b5a1-987654321001',
+    1,
+    0,
+    N'10000000-0000-0000-0000-000000000001'
+)
+GO
+
+INSERT [dbo].[Services]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [Name],
+    [Description],
+    [RequiredDocuments],
+    [Fees],
+    [CategoryId],
+    [IsAvailable],
+    [AverageRating],
+    [OfficialEntityId]
+)
+VALUES
+(
+    N'30000000-0000-0000-0000-000000000003',
+    CAST(N'2026-04-15T18:22:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'استخراج رخصة قيادة',
+    N'خدمة استخراج رخصة قيادة للمواطنين المستوفين للشروط.',
+    N'بطاقة الرقم القومي، شهادة صحية، صور شخصية',
+    CAST(300.00 AS Decimal(18,2)),
+    N'5e0b657a-5f9a-4e38-b5a1-987654321002',
+    1,
+    0,
+    N'10000000-0000-0000-0000-000000000001'
+)
+GO
+
+INSERT [dbo].[Services]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [Name],
+    [Description],
+    [RequiredDocuments],
+    [Fees],
+    [CategoryId],
+    [IsAvailable],
+    [AverageRating],
+    [OfficialEntityId]
+)
+VALUES
+(
+    N'30000000-0000-0000-0000-000000000004',
+    CAST(N'2026-04-15T18:23:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'الاستعلام عن المدارس الحكومية',
+    N'خدمة الاستعلام عن المدارس الحكومية والخدمات التعليمية المتاحة.',
+    N'لا توجد مستندات مطلوبة',
+    NULL,
+    N'5e0b657a-5f9a-4e38-b5a1-987654321003',
+    1,
+    0,
+    N'10000000-0000-0000-0000-000000000002'
+)
+GO
+
+INSERT [dbo].[Services]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [Name],
+    [Description],
+    [RequiredDocuments],
+    [Fees],
+    [CategoryId],
+    [IsAvailable],
+    [AverageRating],
+    [OfficialEntityId]
+)
+VALUES
+(
+    N'30000000-0000-0000-0000-000000000005',
+    CAST(N'2026-04-15T18:24:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'حجز موعد في الوحدة الصحية',
+    N'خدمة حجز موعد للكشف الطبي في الوحدات الصحية الحكومية.',
+    N'بطاقة الرقم القومي',
+    NULL,
+    N'5e0b657a-5f9a-4e38-b5a1-987654321004',
+    1,
+    0,
+    N'10000000-0000-0000-0000-000000000003'
+)
+GO
+
+
+-- ============================================================
+-- OFFICIAL ENTITY INVITATIONS
+-- ============================================================
+
+INSERT [dbo].[OfficialEntityInvitation]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [OfficialEntityId],
+    [InvitedByUserId],
+    [Email],
+    [Role],
+    [TokenHash],
+    [ExpiresAt],
+    [IsAccepted]
+)
+VALUES
+(
+    N'40000000-0000-0000-0000-000000000001',
+    CAST(N'2026-04-15T18:30:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'10000000-0000-0000-0000-000000000001',
+    N'9a58d7d1-87c7-42c8-00de-08de97263e92',
+    N'staff@example.com',
+    3,
+    N'0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+    CAST(N'2026-04-22T18:30:00.0000000' AS DateTime2),
+    0
+)
+GO
+
+INSERT [dbo].[OfficialEntityInvitation]
+(
+    [Id],
+    [CreatedAt],
+    [UpdatedAt],
+    [IsDeleted],
+    [DeletedAt],
+    [OfficialEntityId],
+    [InvitedByUserId],
+    [Email],
+    [Role],
+    [TokenHash],
+    [ExpiresAt],
+    [IsAccepted]
+)
+VALUES
+(
+    N'40000000-0000-0000-0000-000000000002',
+    CAST(N'2026-04-15T18:31:00.0000000' AS DateTime2),
+    NULL,
+    0,
+    NULL,
+    N'10000000-0000-0000-0000-000000000002',
+    N'b001e6a7-11c6-42b2-e99a-08de9625556f',
+    N'admin@example.com',
+    1,
+    N'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789',
+    CAST(N'2026-04-22T18:31:00.0000000' AS DateTime2),
+    0
+)
+GO

@@ -4,6 +4,7 @@ using Dalleni.Infrastructure.Persisitanse;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dalleni.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260830185320_AddOfficialEntityMembershipAndInvitation")]
+    partial class AddOfficialEntityMembershipAndInvitation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -431,7 +434,7 @@ namespace Dalleni.Infrastructure.Migrations
                     b.HasIndex("TokenHash")
                         .IsUnique();
 
-                    b.ToTable("OfficialEntityInvitations");
+                    b.ToTable("OfficialEntityInvitation");
                 });
 
             modelBuilder.Entity("Dalleni.Domin.Models.OfficialEntityMembership", b =>
@@ -471,7 +474,7 @@ namespace Dalleni.Infrastructure.Migrations
                     b.HasIndex("UserId", "OfficialEntityId")
                         .IsUnique();
 
-                    b.ToTable("OfficialEntityMembership", (string)null);
+                    b.ToTable("OfficialEntityMembership");
                 });
 
             modelBuilder.Entity("Dalleni.Domin.Models.OtpCode", b =>
@@ -740,7 +743,6 @@ namespace Dalleni.Infrastructure.Migrations
                         .HasColumnType("nvarchar(4000)");
 
                     b.Property<decimal?>("Fees")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsAvailable")
@@ -756,9 +758,6 @@ namespace Dalleni.Infrastructure.Migrations
 
                     b.Property<Guid>("OfficialEntityId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("RatingCount")
-                        .HasColumnType("int");
 
                     b.Property<string>("RequiredDocuments")
                         .IsRequired()
