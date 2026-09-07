@@ -22,8 +22,7 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
                 .Include(x => x.QuestionTags)
                     .ThenInclude(qt => qt.Tag)
                 .Include(x => x.Answers)
-                    .ThenInclude(a => a.User)
-                .Include(x => x.Comments);
+                    .ThenInclude(a => a.User);
         }
 
         public Task<Question?> GetDetailsAsync(Guid id, bool asTracked = false, CancellationToken cancellationToken = default)

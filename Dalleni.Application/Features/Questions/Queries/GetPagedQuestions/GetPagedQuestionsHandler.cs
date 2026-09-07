@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Dalleni.Application.Commans.Extensions;
 namespace Dalleni.Application.Features.Questions.Queries.GetPagedQuestions
 {
-    public class GetPagedQuestionsHandler : IRequestHandler<GetPagedQuestionsQuery, Response<PaginatedResult<QuestionDetailsResponseDto>>>
+    public class GetPagedQuestionsHandler : IRequestHandler<GetPagedQuestionsQuery, Response<PaginatedResult<QuestionSummaryDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IResponseHandler _responseHandler;
@@ -22,12 +22,12 @@ namespace Dalleni.Application.Features.Questions.Queries.GetPagedQuestions
             _mapper = mapper;
         }
 
-        public async Task<Response<PaginatedResult<QuestionDetailsResponseDto>>> Handle(GetPagedQuestionsQuery request, CancellationToken cancellationToken)
+        public async Task<Response<PaginatedResult<QuestionSummaryDto>>> Handle(GetPagedQuestionsQuery request, CancellationToken cancellationToken)
         {
 
             var PagedRequest = request.request;
             var query = await _unitOfWork.Questions.GetHotQuestionsAsync(cancellationToken);
-            var projected = _mapper.ProjectTo<QuestionDetailsResponseDto>(query);
+            var projected = _mapper.ProjectTo<QuestionSummaryDto>(query);
             var result = await projected.ToPaginatedListAsync(PagedRequest.PageNumber , PagedRequest.PageSize);
             return _responseHandler.Success(result, SystemMessages.DATA_RETRIEVED);
 
