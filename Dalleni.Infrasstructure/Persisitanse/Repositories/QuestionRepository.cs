@@ -28,6 +28,18 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         public Task<Question?> GetDetailsAsync(Guid id, bool asTracked = false, CancellationToken cancellationToken = default)
             => GetDetailedQuestionQuery(asTracked)
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        public async Task<Dictionary<Guid, Question>> GetQuestionsWithUsersByIdsAsync(List<Guid> questionIds,  CancellationToken cancellationToken = default)
+            {
+                if (!questionIds.Any())
+                    return new Dictionary<Guid, Question>();
+
+                var questions = await GetDetailedQuestionQuery(false)
+                    .Where(q => questionIds.Contains(q.Id))
+                    .ToDictionaryAsync(q => q.Id, q => q, cancellationToken);
+
+                return questions;
+            }
+
 
         // -----------------------------
         // Basic Filters

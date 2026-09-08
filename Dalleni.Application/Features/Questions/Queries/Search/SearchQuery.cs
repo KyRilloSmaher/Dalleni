@@ -8,5 +8,5 @@ using System.Text;
 
 namespace Dalleni.Application.Features.Questions.Queries.Search
 {
-    public record SearchQuery(string query , PagedRequest pagedRequest): IRequest<Response<PaginatedResult<QuestionDetailsResponseDto>>>;
+    public record SearchQuery(string query , PagedRequest pagedRequest): IRequest<Response<PaginatedResult<QuestionSummaryDto>>>;
 }

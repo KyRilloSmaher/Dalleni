@@ -42,38 +42,31 @@ namespace Dalleni.Application.Mappings
                             QuestionCount = qt.Tag.UsageCount
                         })));
             CreateMap<Question, QuestionSearchDocument>()
-                .ForMember(dest => dest.Id,opt => opt.MapFrom(src => src.Id.ToString()))
-                .ForMember(dest => dest.Tags,opt => opt.MapFrom(src => src.QuestionTags != null? src.QuestionTags.Select(qt => qt.Tag != null ? qt.Tag.Name : string.Empty)
+                .ForMember(dest => dest.id,opt => opt.MapFrom(src => src.Id.ToString()))
+                .ForMember(dest => dest.tags,opt => opt.MapFrom(src => src.QuestionTags != null? src.QuestionTags.Select(qt => qt.Tag != null ? qt.Tag.Name : string.Empty)
                             .Where(t => !string.IsNullOrEmpty(t)).ToList()    : new List<string>()))
-                .ForMember(dest => dest.CategoryName,opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
-                .ForMember(dest => dest.AnswersCount,opt => opt.MapFrom(src => src.Answers != null ? src.Answers.Count : 0))
-                .ForMember(dest => dest.HasAcceptedAnswer,opt => opt.MapFrom(src => src.AcceptedAnswerId.HasValue));
+                .ForMember(dest => dest.categoryName,opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+                .ForMember(dest => dest.answersCount,opt => opt.MapFrom(src => src.Answers != null ? src.Answers.Count : 0))
+                .ForMember(dest => dest.hasAcceptedAnswer,opt => opt.MapFrom(src => src.AcceptedAnswerId.HasValue));
 
-            // ===== QuestionSearchDocument to QuestionDetailsResponseDto =====
-            CreateMap<QuestionSearchDocument, QuestionDetailsResponseDto>()
-                .ForMember(dest => dest.Id,opt => opt.MapFrom(src => Guid.Parse(src.Id)))
-                .ForMember(dest => dest.Title,opt => opt.MapFrom(src => src.Title))
-                .ForMember(dest => dest.Content,opt => opt.MapFrom(src => src.Content))
-                .ForMember(dest => dest.CategoryName,opt => opt.MapFrom(src => src.CategoryName))
-                .ForMember(dest => dest.UpVotes,opt => opt.MapFrom(src => src.UpVotes))
-                .ForMember(dest => dest.DownVotes,opt => opt.MapFrom(src => src.DownVotes))
-                .ForMember(dest => dest.Views,opt => opt.MapFrom(src => src.Views))
-                .ForMember(dest => dest.AnswersCount,opt => opt.MapFrom(src => src.AnswersCount))
-                .ForMember(dest => dest.Score,opt => opt.MapFrom(src => src.Score))
-                .ForMember(dest => dest.CreatedAt,opt => opt.MapFrom(src => src.CreatedAt))
-                .ForMember(dest => dest.AcceptedAnswerId,opt => opt.MapFrom(src => src.HasAcceptedAnswer ? (Guid?)null : (Guid?)null))
-                // These properties don't exist in QuestionSearchDocument, 
-                // so we ignore them or set default values
-                .ForMember(dest => dest.CategoryId,opt => opt.Ignore())
+            // ===== QuestionSearchDocument to QuestionSummaryDto =====
+            CreateMap<QuestionSearchDocument, QuestionSummaryDto>()
+                .ForMember(dest => dest.Id,opt => opt.MapFrom(src => Guid.Parse(src.id)))
+                .ForMember(dest => dest.Title,opt => opt.MapFrom(src => src.title))
+                .ForMember(dest => dest.Content,opt => opt.MapFrom(src => src.content))
+                .ForMember(dest => dest.CategoryName,opt => opt.MapFrom(src => src.categoryName))
+                .ForMember(dest => dest.UpVotes,opt => opt.MapFrom(src => src.upVotes))
+                .ForMember(dest => dest.DownVotes,opt => opt.MapFrom(src => src.downVotes))
+                .ForMember(dest => dest.Views,opt => opt.MapFrom(src => src.views))
+                .ForMember(dest => dest.AnswersCount,opt => opt.MapFrom(src => src.answersCount))
+                .ForMember(dest => dest.Score,opt => opt.MapFrom(src => src.score))
+                .ForMember(dest => dest.CreatedAt,opt => opt.MapFrom(src => src.createdAt))
                 .ForMember(dest => dest.UserId,opt => opt.Ignore())
                 .ForMember(dest => dest.AuthorName,opt => opt.Ignore())
                 .ForMember(dest => dest.AuthorProfileImageUrl,opt => opt.Ignore())
-                .ForMember(dest => dest.AuthorReputation,opt => opt.Ignore())
                 .ForMember(dest => dest.IsClosed,opt => opt.Ignore())
-                .ForMember(dest => dest.AcceptedAnswerId,opt => opt.Ignore())
-                .ForMember(dest => dest.UpdatedAt,opt => opt.Ignore())
-                .ForMember(dest => dest.Tags,opt => opt.MapFrom(src => src.Tags != null ? src.Tags.Select(tagName => new TagDto { Name = tagName }).ToList()    : new List<TagDto>()))
-                .ForMember(dest => dest.Answers,opt => opt.Ignore());
+                .ForMember(dest => dest.Tags,opt => opt.MapFrom(src => src.tags != null ? src.tags.Select(tagName => new TagDto { Name = tagName }).ToList(): new List<TagDto>()));
+
 
         }
     }

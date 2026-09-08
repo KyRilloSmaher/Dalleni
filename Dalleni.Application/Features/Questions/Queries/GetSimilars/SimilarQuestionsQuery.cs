@@ -7,5 +7,5 @@ using System.Text;
 
 namespace Dalleni.Application.Features.Questions.Queries.GetSimilars
 {
-    public record SimilarQuestionsQuery(string Question): IRequest<Response<IEnumerable<QuestionDetailsResponseDto>>>;
+    public record SimilarQuestionsQuery(string Question): IRequest<Response<IEnumerable<QuestionSummaryDto>>>;
 }

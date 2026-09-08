@@ -18,7 +18,15 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
 
         public Task<ApplicationUser?> GetByUserNameAsync(string userName, bool asTracked = false, CancellationToken cancellationToken = default)
             => FirstOrDefaultAsync(x => x.UserName == userName, asTracked, cancellationToken);
+        public async Task<Dictionary<Guid, ApplicationUser>> GetUsersByIdsAsync(List<Guid> userIds, CancellationToken cancellationToken = default)
+            {
+                if (!userIds.Any())
+                    return new Dictionary<Guid, ApplicationUser>();
 
+                return await Context.Users
+                    .Where(u => userIds.Contains(u.Id))
+                    .ToDictionaryAsync(u => u.Id, u => u, cancellationToken);
+            }
         public async Task<IEnumerable<ApplicationUser>> SearchAsync(string keyword, CancellationToken cancellationToken = default)
         {
             keyword = keyword.Trim().ToLower();

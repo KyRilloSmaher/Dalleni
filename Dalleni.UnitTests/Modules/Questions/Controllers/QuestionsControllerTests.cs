@@ -111,7 +111,7 @@ public async Task SearchAsync_SendsSearchQuery()
     [Fact]
     public async Task SimilarsQuestionaAsync_SendsSimilarQuestionsQuery()
     {
-        var response = ResponseFactory.Ok<IEnumerable<QuestionDetailsResponseDto>>(new[] { EndpointTestData.QuestionDetails() });
+        var response = ResponseFactory.Ok<IEnumerable<QuestionSummaryDto>>(new[] { EndpointTestData.QuestionSummary() });
         _mediator.Setup(x => x.Send(It.IsAny<SimilarQuestionsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
         var controller = new QuestionsController(_mediator.Object);

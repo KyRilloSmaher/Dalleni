@@ -14,5 +14,7 @@ namespace Dalleni.Domin.Interfaces.Repositories
         Task<IEnumerable<ApplicationUser>> GetTopContributorsAsync(int count, CancellationToken cancellationToken = default);
         // Based on AnswersCount or AcceptedAnswersCount
         Task<ApplicationUser?> GetUserWithStatsAsync(Guid userId, CancellationToken cancellationToken = default);
+        Task<Dictionary<Guid, ApplicationUser>> GetUsersByIdsAsync(List<Guid> userIds,  CancellationToken cancellationToken = default);
+
     }
 }

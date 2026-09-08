@@ -75,18 +75,30 @@ namespace Dalleni.Infrastructure.ExternalServices
                 if (filters.Any())
                     options.Filter = string.Join(" and ", filters);
 
+               // Use lowercase field names that match your index
                 options.Select.Add("id");
                 options.Select.Add("title");
                 options.Select.Add("content");
                 options.Select.Add("tags");
                 options.Select.Add("categoryName");
+                options.Select.Add("createdAt");
+                options.Select.Add("hasAcceptedAnswer");
                 options.Select.Add("score");
-
+                options.Select.Add("views");
+                options.Select.Add("answersCount");
+                options.Select.Add("upVotes");
+                options.Select.Add("downVotes");
                 var response = await _client.SearchAsync<QuestionSearchDocument>(query, options);
+                var results = response.Value.GetResults().ToList();
 
-                return response.Value.GetResults()
-                    .Select(r => r.Document)
-                    .ToList();
+                // Log the first result to see what fields are populated
+                if (results.Any())
+                {
+                    var firstDoc = results.First().Document;
+                    _logger.LogInformation("First search result: {@Document}", firstDoc);
+                }
+
+                return results.Select(r => r.Document).ToList();
             }
             catch (Exception ex)
             {

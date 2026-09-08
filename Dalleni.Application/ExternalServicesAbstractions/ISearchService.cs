@@ -1,30 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
 
 namespace Dalleni.Application.ExternalServicesAbstractions
 {
-    public class QuestionSearchDocument
-    {
-        public string Id { get; set; } = default!;
-        public string Title { get; set; } = default!;
-        public string Content { get; set; } = default!;
-        public List<string> Tags { get; set; } = new();
-        public string CategoryName { get; set; } = default!;
-
-        public int UpVotes { get; private set; }
-
-        public int DownVotes { get; private set; }
-
-        public int Views { get; private set; }
-
-        public int AnswersCount { get; private set; }
-
-        public double Score { get; private set; }
-
-        public DateTime CreatedAt { get; set; }
-        public bool HasAcceptedAnswer { get; set; }
-    }
+ public class QuestionSearchDocument
+{
+    public string id { get; set; }  // lowercase, not "Id"
+    
+    public string title { get; set; }  // lowercase, not "Title"
+    
+    public string content { get; set; }  // lowercase, not "Content"
+    
+    public List<string> tags { get; set; }  // lowercase, not "Tags"
+    
+    public string categoryName { get; set; }  // lowercase, not "CategoryName"
+    
+    public DateTime createdAt { get; set; }  // lowercase, not "CreatedAt"
+    
+    public bool hasAcceptedAnswer { get; set; }  // lowercase, not "HasAcceptedAnswer"
+    
+    public double score { get; set; }  // lowercase, not "Score"
+    
+    public int views { get; set; }  // lowercase, not "Views"
+    
+    public int answersCount { get; set; }  // lowercase, not "AnswersCount"
+    
+    public int upVotes { get; set; }  // lowercase, not "UpVotes"
+    
+    public int downVotes { get; set; }  // lowercase, not "DownVotes"
+}
     public interface ISearchService
     {
         Task IndexQuestionAsync(QuestionSearchDocument doc);

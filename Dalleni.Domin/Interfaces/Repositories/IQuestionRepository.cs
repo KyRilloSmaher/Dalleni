@@ -16,6 +16,7 @@ namespace Dalleni.Domin.Interfaces.Repositories
         Task<IEnumerable<Question>> GetUnansweredQuestionsAsync(CancellationToken cancellationToken = default);
         Task<IEnumerable<Question>> GetMostViewedAsync(int count, CancellationToken cancellationToken = default);
         Task<IEnumerable<Question>> GetRelatedQuestionsAsync(Guid questionId, int count, CancellationToken cancellationToken = default);
+        Task<Dictionary<Guid, Question>> GetQuestionsWithUsersByIdsAsync(List<Guid> questionIds, CancellationToken cancellationToken = default);
 
     }
 }

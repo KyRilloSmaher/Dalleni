@@ -31,13 +31,18 @@ namespace Dalleni.Application.DTOs.Responses.Questions
     {
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public string CategoryName { get; set; } = string.Empty;
         public Guid UserId { get; set; }
         public string AuthorName { get; set; } = string.Empty;
+        public string? AuthorProfileImageUrl { get; set; }
+        public int AuthorReputation { get; set; }
         public int UpVotes { get; set; }
         public int DownVotes { get; set; }
         public int Views { get; set; }
         public int AnswersCount { get; set; }
         public bool IsClosed { get; set; }
+        public double Score { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<TagDto> Tags { get; set; } = new();
     }
