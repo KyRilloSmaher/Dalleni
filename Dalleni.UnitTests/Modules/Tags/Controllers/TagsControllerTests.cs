@@ -1,6 +1,8 @@
 using Dalleni.API.Controllers;
 using Dalleni.Application.DTOs.Requests.Base;
+using Dalleni.Application.DTOs.Responses.Questions;
 using Dalleni.Application.DTOs.Responses.Tags;
+using Dalleni.Application.Features.Questions.Queries.GetByTag;
 using Dalleni.Application.Features.Tags.Queries.GetTopTags;
 using Dalleni.Domin.ResponsePattern;
 using Dalleni.UnitTests.Shared.Builders;
@@ -28,5 +30,27 @@ public class TagsControllerTests
         Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
         _mediator.Verify(x => x.Send(It.IsAny<GetTopTagsQuery>(), It.IsAny<CancellationToken>()), Times.Once);
     }
+
+
+[Fact]
+public async Task GetByTagAsync_SendsGetByTagQuery()
+{
+    var response = ResponseFactory.Ok<PaginatedResult<QuestionSummaryDto>>(new PaginatedResult<QuestionSummaryDto>
+    {
+        Items = new[] { EndpointTestData.QuestionSummary() },
+        PageNumber = 1,
+        PageSize = 10,
+        TotalCount = 1
+    });
+
+    _mediator.Setup(x => x.Send(It.IsAny<GetByTagQuery>(), It.IsAny<CancellationToken>()))
+        .ReturnsAsync(response);
+
+    var controller = new TagsController(_mediator.Object);
+
+    var result = await controller.GetByTagAsync(new PagedRequest(), Guid.NewGuid());
+
+    Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
+}
 }
 

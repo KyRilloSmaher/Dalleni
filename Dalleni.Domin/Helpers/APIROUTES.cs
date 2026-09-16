@@ -66,7 +66,7 @@ namespace Dalleni.Domin.Helpers
             public const string GetById = Prefix + SingleRoute;
             public const string GetAllPaged = Root + "/questions";
             public const string GetByCategory = Prefix + "category/" + SingleRoute;
-            public const string GetByTag = Prefix + SingleRoute + "/tags";
+          
             public const string Search = Prefix + "search";
             public const string Related = Prefix + SingleRoute + "/related";
             public const string Similars = Prefix + "similars";
@@ -102,7 +102,14 @@ namespace Dalleni.Domin.Helpers
             private const string Prefix = Root + "/tags/";
             public const string GetAll = Root + "/tags";
             public const string GetBySlug = Prefix + "{slug}";
+            public const string GetById = Prefix + SingleRoute;
+
+            public const string GetQuestions = Prefix + SingleRoute + "/questions";
             public const string Search = Prefix + "search";
+            public const string Create = Root + "/tags/create";
+            public const string Update = Prefix + SingleRoute;
+            public const string Delete = Prefix + SingleRoute;
+
         }
         #endregion
 

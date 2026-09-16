@@ -1,6 +1,8 @@
 using Dalleni.API.Bases;
 using Dalleni.Application.DTOs.Requests.Base;
+using Dalleni.Application.DTOs.Responses.Questions;
 using Dalleni.Application.DTOs.Responses.Tags;
+using Dalleni.Application.Features.Questions.Queries.GetByTag;
 using Dalleni.Application.Features.Tags.Queries;
 using Dalleni.Application.Features.Tags.Queries.GetTopTags;
 using Dalleni.Domin.Helpers;
@@ -23,6 +25,14 @@ namespace Dalleni.API.Controllers
         public async Task<IActionResult> GetAllAsync([FromQuery] PagedRequest request)
         {
             var result = await _mediator.Send(new GetTopTagsQuery(request));
+            return FinalResponse(result);
+        }
+
+        [HttpGet(APIROUTES.Tags.GetQuestions)]
+        [ProducesResponseType(typeof(Response<PaginatedResult<QuestionSummaryDto>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetByTagAsync([FromQuery] PagedRequest request , [FromRoute] Guid id)
+        {
+            var result = await _mediator.Send(new GetByTagQuery(id ,request));
             return FinalResponse(result);
         }
     }

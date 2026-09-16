@@ -47,13 +47,7 @@ namespace Dalleni.API.Controllers
             var result = await _mediator.Send(new GetPagedQuestionsQuery(request));
             return FinalResponse(result);
         }
-        [HttpGet(APIROUTES.Questions.GetByTag)]
-        [ProducesResponseType(typeof(Response<PaginatedResult<QuestionSummaryDto>>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetByTagAsync([FromQuery] PagedRequest request , [FromRoute] Guid id)
-        {
-            var result = await _mediator.Send(new GetByTagQuery(id ,request));
-            return FinalResponse(result);
-        }
+
         [HttpGet(APIROUTES.Questions.Search)]
         [ProducesResponseType(typeof(Response<PaginatedResult<QuestionSummaryDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> SearchAsync([FromQuery] PagedRequest request, [FromQuery] string query)

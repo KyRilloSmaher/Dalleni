@@ -58,26 +58,6 @@ public async Task GetAllPagedAsync_SendsPagedQuery()
     Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
 }
 
-[Fact]
-public async Task GetByTagAsync_SendsGetByTagQuery()
-{
-    var response = ResponseFactory.Ok<PaginatedResult<QuestionDetailsResponseDto>>(new PaginatedResult<QuestionDetailsResponseDto>
-    {
-        Items = new[] { EndpointTestData.QuestionDetails() },
-        PageNumber = 1,
-        PageSize = 10,
-        TotalCount = 1
-    });
-
-    _mediator.Setup(x => x.Send(It.IsAny<GetByTagQuery>(), It.IsAny<CancellationToken>()))
-        .ReturnsAsync(response);
-
-    var controller = new QuestionsController(_mediator.Object);
-
-    var result = await controller.GetByTagAsync(new PagedRequest(), Guid.NewGuid());
-
-    Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
-}
 
 [Fact]
 public async Task SearchAsync_SendsSearchQuery()
