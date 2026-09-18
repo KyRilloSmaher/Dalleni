@@ -44,12 +44,10 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         // -----------------------------
         // Basic Filters
         // -----------------------------
-        public async Task<IEnumerable<Question>> GetByCategoryIdAsync(Guid categoryId, bool asTracked = false, CancellationToken cancellationToken = default)
-            => await GetDetailedQuestionQuery(asTracked)
+        public async Task<IQueryable<Question>> GetByCategoryIdAsync(Guid categoryId, bool asTracked = false, CancellationToken cancellationToken = default)
+            =>  GetDetailedQuestionQuery(asTracked)
                 .Where(x => x.CategoryId == categoryId && !x.IsClosed)
-                .OrderByDescending(x => x.CreatedAt)
-                .ToListAsync(cancellationToken);
-
+                .OrderByDescending(x => x.CreatedAt);
         public async Task<IEnumerable<Question>> GetByUserIdAsync(Guid userId, bool asTracked = false, CancellationToken cancellationToken = default)
             => await GetDetailedQuestionQuery(asTracked)
                 .Where(x => x.UserId == userId)

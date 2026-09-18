@@ -117,7 +117,10 @@ namespace Dalleni.Domin.Helpers
         public const string CANNOT_MARK_OWN_ANSWER = "You cannot mark your own answer as successful.";
         public const string CANNOT_UNMARK_OWN_ANSWER = "You cannot unmark your own answer as successful.";
        
-
+        // =====================
+        // 🏷️ Categories
+        // =====================
+        public const string CATEGORY_NOT_FOUND = "Category not found.";
         // ==================================
         // SERVICES
         // ==================================

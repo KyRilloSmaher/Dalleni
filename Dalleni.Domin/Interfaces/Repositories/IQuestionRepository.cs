@@ -5,7 +5,7 @@ namespace Dalleni.Domin.Interfaces.Repositories
     public interface IQuestionRepository : IRepository<Question>
     {
         Task<Question?> GetDetailsAsync(Guid id, bool asTracked = false, CancellationToken cancellationToken = default);
-        Task<IEnumerable<Question>> GetByCategoryIdAsync(Guid categoryId, bool asTracked = false, CancellationToken cancellationToken = default);
+        Task<IQueryable<Question>> GetByCategoryIdAsync(Guid categoryId, bool asTracked = false, CancellationToken cancellationToken = default);
         Task<IEnumerable<Question>> GetByUserIdAsync(Guid userId, bool asTracked = false, CancellationToken cancellationToken = default);
         Task<IEnumerable<Question>> GetOpenQuestionsAsync(bool asTracked = false, CancellationToken cancellationToken = default);
         Task<IQueryable<Question>> SearchAsync(string keyword, CancellationToken cancellationToken = default);

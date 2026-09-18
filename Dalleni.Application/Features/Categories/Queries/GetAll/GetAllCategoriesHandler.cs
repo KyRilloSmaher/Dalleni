@@ -6,7 +6,7 @@ using Dalleni.Domin.Interfaces.Repositories;
 using Dalleni.Domin.ResponsePattern;
 using MediatR;
 
-namespace Dalleni.Application.Features.Categories.Queries
+namespace Dalleni.Application.Features.Categories.Queries.GetAll
 {
     public class GetAllCategoriesHandler : IRequestHandler<GetAllCategoriesQuery, Response<IEnumerable<CategoryDto>>>
     {

@@ -1,6 +1,6 @@
 using Dalleni.API.Controllers;
 using Dalleni.Application.DTOs.Responses.Categories;
-using Dalleni.Application.Features.Categories.Queries;
+using Dalleni.Application.Features.Categories.Queries.GetAll;
 using Dalleni.Domin.Helpers;
 using Dalleni.UnitTests.Shared.Builders;
 using Dalleni.UnitTests.Shared.Responses;

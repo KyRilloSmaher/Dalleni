@@ -119,6 +119,7 @@ namespace Dalleni.Domin.Helpers
             private const string Prefix = Root + "/categories/";
             public const string GetAll = Root + "/categories";
             public const string GetById = Prefix + SingleRoute;
+            public const string GetQuestionsByCategoryId = Prefix + SingleRoute + "/questions";
         }
         #endregion
 
