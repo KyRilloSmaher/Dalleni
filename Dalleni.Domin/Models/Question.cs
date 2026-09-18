@@ -19,6 +19,7 @@ namespace Dalleni.Domin.Models
             Comments = new List<Comment>();
             QuestionTags = new List<QuestionTag>();
             SavedQuestions = new List<SavedQuestion>();
+            Votes = new List<Vote>();
         }
 
         private Question(string title, string content, Guid userId, Guid categoryId) : this()
@@ -64,9 +65,10 @@ namespace Dalleni.Domin.Models
         public ICollection<Answer> Answers { get; private set; }
 
         public ICollection<Comment> Comments { get; private set; }
-
+    
         public ICollection<QuestionTag> QuestionTags { get; private set; }
         public ICollection<SavedQuestion> SavedQuestions { get; private set; }
+        public ICollection<Vote> Votes { get; private set; }
 
         public static Question Create(string title, string content, Guid userId, Guid categoryId)
         {
@@ -128,7 +130,7 @@ namespace Dalleni.Domin.Models
             EnsureNotDeleted();
 
             Views++;
-            Score += 0.01;
+            Score += ScoreRules.View;
 
             MarkUpdated();
         }
@@ -140,12 +142,12 @@ namespace Dalleni.Domin.Models
             if (voteType == VoteType.Upvote)
             {
                 UpVotes++;
-                Score += 1.5;
+                Score += ScoreRules.Upvote;
             }
             else
             {
                 DownVotes++;
-                Score -= 1.0;
+                Score -= ScoreRules.Downvote;
             }
 
             MarkUpdated();
@@ -156,7 +158,7 @@ namespace Dalleni.Domin.Models
             EnsureNotDeleted();
 
             AnswersCount++;
-            Score += 2;
+            Score += ScoreRules.AnswerAdded;
 
             MarkUpdated();
         }
@@ -168,7 +170,7 @@ namespace Dalleni.Domin.Models
             if (AnswersCount > 0)
                 AnswersCount--;
 
-            Score -= 2;
+            Score -= ScoreRules.AnswerRemoved;
             MarkUpdated();
         }
 
@@ -177,7 +179,7 @@ namespace Dalleni.Domin.Models
             EnsureNotDeleted();
 
             AcceptedAnswerId = DomainGuard.AgainstEmpty(answerId, nameof(answerId));
-            Score += 5;
+            Score += ScoreRules.SuccessfulAnswer;
 
             MarkUpdated();
         }
@@ -193,14 +195,14 @@ namespace Dalleni.Domin.Models
             if (voteType == VoteType.Upvote && UpVotes > 0)
             {
                 UpVotes--;
-                Score -= 2;
+                Score -= ScoreRules.Upvote;
                 MarkUpdated();
                 return true;
             }
             else if (voteType == VoteType.Downvote && DownVotes > 0)
             {
                 DownVotes--;
-                Score += 1;
+                Score += ScoreRules.Downvote;
                 MarkUpdated();
                 return true;
             }

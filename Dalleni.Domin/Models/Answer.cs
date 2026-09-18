@@ -263,6 +263,7 @@ namespace Dalleni.Domin.Models
                 return;
 
             IsAccepted = true;
+            Score += ScoreRules.AcceptedAnswer;
 
             MarkUpdated();
             RaiseDomainEvent(
@@ -288,6 +289,7 @@ namespace Dalleni.Domin.Models
                 return;
 
             IsAccepted = false;
+            Score -= ScoreRules.UnacceptedAnswer;
 
             MarkUpdated();
         }
@@ -311,7 +313,7 @@ namespace Dalleni.Domin.Models
 
             if (Type == AnswerType.Community)
             {
-                Score += 5;
+                Score += ScoreRules.SuccessfulAnswer;
             }
 
             MarkUpdated();
@@ -331,7 +333,7 @@ namespace Dalleni.Domin.Models
 
             if (Type == AnswerType.Community)
             {
-                Score -= 5;
+                Score -= ScoreRules.UnsuccessfulAnswer;
             }
 
             MarkUpdated();
@@ -355,12 +357,12 @@ namespace Dalleni.Domin.Models
             if (voteType == VoteType.Upvote)
             {
                 UpVotes++;
-                Score += 2;
+                Score += ScoreRules.Upvote;
             }
             else if (voteType == VoteType.Downvote)
             {
                 DownVotes++;
-                Score -= 1;
+                Score -= ScoreRules.Downvote;
             }
             else
             {
@@ -386,7 +388,7 @@ namespace Dalleni.Domin.Models
             if (voteType == VoteType.Upvote && UpVotes > 0)
             {
                 UpVotes--;
-                Score -= 2;
+                Score -= ScoreRules.Upvote;
 
                 MarkUpdated();
 
@@ -396,7 +398,7 @@ namespace Dalleni.Domin.Models
             if (voteType == VoteType.Downvote && DownVotes > 0)
             {
                 DownVotes--;
-                Score += 1;
+                Score += ScoreRules.Downvote;
 
                 MarkUpdated();
 
