@@ -33,6 +33,7 @@ namespace Dalleni.Application.DTOs.Responses.Questions
         public string Title { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
         public string CategoryName { get; set; } = string.Empty;
+        public Guid CategoryId { get; set; }
         public Guid UserId { get; set; }
         public string AuthorName { get; set; } = string.Empty;
         public string? AuthorProfileImageUrl { get; set; }

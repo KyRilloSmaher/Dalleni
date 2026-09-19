@@ -24,23 +24,19 @@ namespace Dalleni.Application.Mappings
                 .ForMember(dest => dest.IsClosed, opt => opt.MapFrom(src => src.IsClosed));
 
             CreateMap<Question, QuestionSummaryDto>()
-                .ForMember(dest => dest.AuthorName,
-                    opt => opt.MapFrom(src =>
-                        src.User != null ? src.User.UserName : string.Empty))
-
-                .ForMember(dest => dest.AnswersCount,
-                    opt => opt.MapFrom(src =>
-                        src.Answers.Count))
-
-                .ForMember(dest => dest.Tags,
-                    opt => opt.MapFrom(src =>
-                        src.QuestionTags.Select(qt => new TagDto
+                .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src =>src.User != null ? src.User.UserName : string.Empty))
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+                .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId))
+                .ForMember(dest => dest.AnswersCount, opt => opt.MapFrom(src =>src.Answers.Count))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src =>src.QuestionTags.Select(qt => new TagDto
                         {
                             Id = qt.Tag.Id,
                             Name = qt.Tag.Name,
                             Slug = qt.Tag.Slug,
                             QuestionCount = qt.Tag.UsageCount
                         })));
+
+                        
             CreateMap<Question, QuestionSearchDocument>()
                 .ForMember(dest => dest.id,opt => opt.MapFrom(src => src.Id.ToString()))
                 .ForMember(dest => dest.tags,opt => opt.MapFrom(src => src.QuestionTags != null? src.QuestionTags.Select(qt => qt.Tag != null ? qt.Tag.Name : string.Empty)
