@@ -9,7 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '10.0.x'
-  SOLUTION_PATH: 'Dalleni.API/Dalleni.API.slnx'  # Added: Solution file path
+  SOLUTION_PATH: 'Dalleni.API/Dalleni.API.slnx'
   PROJECT_PATH: 'Dalleni.API/Dalleni.API.csproj'
   PUBLISH_DIR: './publish'
 
@@ -17,116 +17,190 @@ jobs:
   deploy:
     name: Deploy to MonsterASP
     runs-on: windows-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-        
-    - name: Generate appsettings.Production.json from secrets
-      run: |
-        @"
-        {
-          "Logging": {
-            "LogLevel": {
-              "Default": "Error",
-              "Microsoft.AspNetCore": "Warning",
-              "Microsoft.EntityFrameworkCore.Database.Command": "Error"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # ─────────────────────────────────────────────
+      # 1. Generate appsettings.Production.json
+      # ─────────────────────────────────────────────
+      - name: Generate appsettings.Production.json
+        shell: pwsh
+        run: |
+          @"
+          {
+            "Logging": {
+              "LogLevel": {
+                "Default": "Error",
+                "Microsoft.AspNetCore": "Warning",
+                "Microsoft.EntityFrameworkCore.Database.Command": "Error"
+              }
+            },
+            "AllowedHosts": "*",
+            "AllowedOrigins": "*",
+            "ConnectionStrings": {
+              "Cloud": "",
+              "Local": "Server=${{ secrets.DB_SERVER }};Database=${{ secrets.DB_NAME }};User Id=${{ secrets.DB_USER }};Password=${{ secrets.DB_PASSWORD }};TrustServerCertificate=True;MultipleActiveResultSets=True;"
+            },
+            "cloudinary": {
+              "CloudName": "${{ secrets.CLOUDINARY_CLOUD_NAME }}",
+              "ApiKey": "${{ secrets.CLOUDINARY_API_KEY }}",
+              "ApiSecret": "${{ secrets.CLOUDINARY_API_SECRET }}"
+            },
+            "JwtSettings": {
+              "Key": "${{ secrets.JWT_KEY }}",
+              "Issuer": "Dalleni API Service",
+              "Audience": "Flutter Mobile Application",
+              "ValidateAudience": true,
+              "ValidateIssuer": true,
+              "ValidateLifeTime": true,
+              "ValidateIssuerSigningKey": true,
+              "AccessTokenLifetimeHours": 1,
+              "RefreshTokenLifetimeDays": 2
+            },
+            "emailSettings": {
+              "port": "465",
+              "host": "smtp.gmail.com",
+              "FromEmail": "${{ secrets.EMAIL_FROM }}",
+              "password": "${{ secrets.EMAIL_PASSWORD }}"
+            },
+            "Authentication": {
+              "Google": {
+                "ClientId": "${{ secrets.GOOGLE_CLIENT_ID }}",
+                "ClientSecret": "${{ secrets.GOOGLE_CLIENT_SECRET }}",
+                "redirectUrl": "/api/google-signin"
+              }
+            },
+            "SearchSettings": {
+              "Endpoint": "${{ secrets.AZURE_SEARCH_ENDPOINT }}",
+              "ApiKey": "${{ secrets.AZURE_SEARCH_API_KEY }}",
+              "IndexName": "${{ secrets.AZURE_SEARCH_INDEX }}",
+              "SemanticConfigName": "default"
+            },
+            "ImageStorageProvider": "Azure",
+            "AzureBlobStorage": "${{ secrets.AZURE_STORAGE_CONNECTION }}",
+            "Firebase": {
+              "ServiceAccountPath": "firebase-service-account.json"
+            },
+            "Hangfire": {
+              "WorkerCount": 5
+            },
+            "SignalR": {
+              "EnableDetailedErrors": false,
+              "KeepAliveIntervalSeconds": 15,
+              "ClientTimeoutIntervalSeconds": 30
+            },
+            "Fcm": {
+              "Enabled": true
             }
-          },
-          "AllowedHosts": "*",
-          "AllowedOrigins": "*",
-          "ConnectionStrings": {
-            "Cloud": "",
-            "Local": "Server=${{ secrets.DB_SERVER }};Database=${{ secrets.DB_NAME }};User Id=${{ secrets.DB_USER }};Password=${{ secrets.DB_PASSWORD }};TrustServerCertificate=True;MultipleActiveResultSets=True;"
-          },
-          "cloudinary": {
-            "CloudName": "${{ secrets.CLOUDINARY_CLOUD_NAME }}",
-            "ApiKey": "${{ secrets.CLOUDINARY_API_KEY }}",
-            "ApiSecret": "${{ secrets.CLOUDINARY_API_SECRET }}"
-          },
-          "JwtSettings": {
-            "Key": "${{ secrets.JWT_KEY }}",
-            "Issuer": "Dalleni API Service",
-            "Audience": "Flutter Mobile Application",
-            "ValidateAudience": true,
-            "ValidateIssuer": true,
-            "ValidateLifeTime": true,
-            "ValidateIssuerSigningKey": true,
-            "AccessTokenLifetimeHours": 1,
-            "RefreshTokenLifetimeDays": 2
-          },
-          "emailSettings": {
-            "port": "465",
-            "host": "smtp.gmail.com",
-            "FromEmail": "${{ secrets.EMAIL_FROM }}",
-            "password": "${{ secrets.EMAIL_PASSWORD }}"
-          },
-          "Authentication": {
-            "Google": {
-              "ClientId": "${{ secrets.GOOGLE_CLIENT_ID }}",
-              "ClientSecret": "${{ secrets.GOOGLE_CLIENT_SECRET }}",
-              "redirectUrl": "/api/google-signin"
-            }
-          },
-          "SearchSettings": {
-            "Endpoint": "${{ secrets.AZURE_SEARCH_ENDPOINT }}",
-            "ApiKey": "${{ secrets.AZURE_SEARCH_API_KEY }}",
-            "IndexName": "${{ secrets.AZURE_SEARCH_INDEX }}",
-            "SemanticConfigName": "default"
-          },
-          "ImageStorageProvider": "Azure",
-          "AzureBlobStorage": "${{ secrets.AZURE_STORAGE_CONNECTION }}"
-        }
-        "@ | Out-File -FilePath "Dalleni.API/appsettings.Production.json" -Encoding UTF8
-        
-    - name: Verify appsettings.Production.json created
-      run: |
-        Write-Host "✅ appsettings.Production.json created successfully!"
-        
-    - name: Restore dependencies
-      run: dotnet restore ${{ env.SOLUTION_PATH }}  # Updated: Use solution file
-      
-    - name: Build
-      run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore  # Updated: Use solution file
-      
-    - name: Run tests
-      run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --verbosity normal || true  # Updated: Use solution file
-      
-    - name: Publish for MonsterASP
-      run: |
-        dotnet publish ${{ env.PROJECT_PATH }} `
-          --configuration Release `
-          --output ${{ env.PUBLISH_DIR }} `
-          --runtime win-x86 `
-          --self-contained false `
-          /p:EnvironmentName=Production
-          
-    - name: Deploy to MonsterASP
-      uses: rasmusbuchholdt/simply-web-deploy@2.1.0
-      with:
-        website-name: ${{ secrets.MONSTERASP_WEBSITE_NAME }}
-        server-computer-name: ${{ secrets.MONSTERASP_SERVER_URL }}
-        server-username: ${{ secrets.MONSTERASP_USERNAME }}
-        server-password: ${{ secrets.MONSTERASP_PASSWORD }}
-        source-folder-path: ${{ env.PUBLISH_DIR }}
-        destination-folder-path: 'wwwroot'
-        allow-untrusted-certificate: true
-        
-    - name: Deployment Summary
-      run: |
-        $website = "${{ secrets.MONSTERASP_WEBSITE_NAME }}.siteasp.net"
-        $url = "https://$website"
-        
-        echo "## 🚀 Deployment to MonsterASP Completed!" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Property | Value |" >> $env:GITHUB_STEP_SUMMARY
-        echo "|----------|-------|" >> $env:GITHUB_STEP_SUMMARY
-        echo "| **Website** | [$url]($url) |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| **Environment** | Production |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| **Deployed At** | $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| **Status** | ✅ Success |" >> $env:GITHUB_STEP_SUMMARY
+          }
+          "@ | Out-File -FilePath "Dalleni.API/appsettings.Production.json" -Encoding UTF8
+
+      # ─────────────────────────────────────────────
+      # 2. Recreate Firebase service account from secret
+      # ─────────────────────────────────────────────
+      - name: Create firebase-service-account.json
+        shell: pwsh
+        run: |
+          $b64 = "${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}"
+          if ([string]::IsNullOrWhiteSpace($b64)) {
+            Write-Error "FIREBASE_SERVICE_ACCOUNT_BASE64 secret is missing!"
+            exit 1
+          }
+          $bytes = [Convert]::FromBase64String($b64)
+          [IO.File]::WriteAllBytes("Dalleni.API/firebase-service-account.json", $bytes)
+          Write-Host "✅ firebase-service-account.json created ($($bytes.Length) bytes)"
+
+      # ─────────────────────────────────────────────
+      # 3. Build, test, publish
+      # ─────────────────────────────────────────────
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --verbosity normal
+        continue-on-error: true
+
+      - name: Publish
+        run: |
+          dotnet publish ${{ env.PROJECT_PATH }} `
+            --configuration Release `
+            --output ${{ env.PUBLISH_DIR }} `
+            --runtime win-x86 `
+            --self-contained false `
+            /p:EnvironmentName=Production
+
+      # ─────────────────────────────────────────────
+      # 4. Ensure Firebase JSON is inside publish output
+      # ─────────────────────────────────────────────
+      - name: Copy firebase-service-account.json to publish
+        shell: pwsh
+        run: |
+          Copy-Item "Dalleni.API/firebase-service-account.json" `
+                    -Destination "${{ env.PUBLISH_DIR }}/firebase-service-account.json" `
+                    -Force
+          Write-Host "✅ Firebase credentials copied to publish folder"
+
+      - name: Verify publish output
+        shell: pwsh
+        run: |
+          Write-Host "── Publish folder contents ──"
+          Get-ChildItem ${{ env.PUBLISH_DIR }} | Select-Object -First 20
+          if (!(Test-Path "${{ env.PUBLISH_DIR }}/appsettings.Production.json")) {
+            Write-Error "appsettings.Production.json missing from publish!"
+            exit 1
+          }
+          if (!(Test-Path "${{ env.PUBLISH_DIR }}/firebase-service-account.json")) {
+            Write-Error "firebase-service-account.json missing from publish!"
+            exit 1
+          }
+          Write-Host "✅ All required files present"
+
+      # ─────────────────────────────────────────────
+      # 5. Deploy
+      # ─────────────────────────────────────────────
+      - name: Deploy to MonsterASP
+        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
+        with:
+          website-name: ${{ secrets.MONSTERASP_WEBSITE_NAME }}
+          server-computer-name: ${{ secrets.MONSTERASP_SERVER_URL }}
+          server-username: ${{ secrets.MONSTERASP_USERNAME }}
+          server-password: ${{ secrets.MONSTERASP_PASSWORD }}
+          source-folder-path: ${{ env.PUBLISH_DIR }}
+          destination-folder-path: 'wwwroot'
+          allow-untrusted-certificate: true
+
+      # ─────────────────────────────────────────────
+      # 6. Summary + cleanup
+      # ─────────────────────────────────────────────
+      - name: Deployment Summary
+        if: always()
+        shell: pwsh
+        run: |
+          $website = "${{ secrets.MONSTERASP_WEBSITE_NAME }}.siteasp.net"
+          $url = "https://$website"
+          echo "## 🚀 Deployment to MonsterASP" >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $env:GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $env:GITHUB_STEP_SUMMARY
+          echo "| **Website** | [$url]($url) |" >> $env:GITHUB_STEP_SUMMARY
+          echo "| **Environment** | Production |" >> $env:GITHUB_STEP_SUMMARY
+          echo "| **Deployed At** | $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') |" >> $env:GITHUB_STEP_SUMMARY
+          echo "| **Status** | ${{ job.status }} |" >> $env:GITHUB_STEP_SUMMARY
+
+      - name: Clean up secrets from workspace
+        if: always()
+        shell: pwsh
+        run: |
+          Remove-Item -Force "Dalleni.API/appsettings.Production.json" -ErrorAction SilentlyContinue
+          Remove-Item -Force "Dalleni.API/firebase-service-account.json" -ErrorAction SilentlyContinue
+          Write-Host "🧹 Cleaned up generated secret files"

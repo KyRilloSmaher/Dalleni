@@ -485,7 +485,7 @@ $RECYCLE.BIN/
 *.swp
 
 tst.json
-
+firebase-service-account.json
 # Build outputs
 publish/
 publish-linux/
