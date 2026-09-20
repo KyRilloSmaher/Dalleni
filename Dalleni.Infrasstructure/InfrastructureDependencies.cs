@@ -106,6 +106,7 @@ namespace Dalleni.Infrasstructure
             services.AddScoped<INotificationPushService,FirebaseNotificationPushService>();
             services.AddScoped<IBackgroundJobService, HangfireBackgroundJobService>();
             services.AddScoped<INotificationDeliveryJob,NotificationDeliveryJob>();
+            //services.AddScoped<INotificationRealtimeService,NotificationRealtimeService>();
             services.AddScoped<IImageUploaderServiceFactory, ImageUploaderServiceFactory>();
 
            services.AddScoped<IImageUploaderService>(sp =>
