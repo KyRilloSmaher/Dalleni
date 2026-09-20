@@ -9,6 +9,7 @@ using Dalleni.Application.Features.Questions.Commands.DeleteQuestion;
 using Dalleni.Application.Features.Questions.Commands.UpdateQuestion;
 using Dalleni.Application.Features.Questions.Queries;
 using Dalleni.Application.Features.Questions.Queries.GetByTag;
+using Dalleni.Application.Features.Questions.Queries.GetByUser;
 using Dalleni.Application.Features.Questions.Queries.GetPagedQuestions;
 using Dalleni.Application.Features.Questions.Queries.GetQuestionDetails;
 using Dalleni.Application.Features.Questions.Queries.GetRelatedQuestions;
@@ -47,6 +48,16 @@ namespace Dalleni.API.Controllers
             var result = await _mediator.Send(new GetPagedQuestionsQuery(request));
             return FinalResponse(result);
         }
+
+        [HttpGet(APIROUTES.Questions.UserQuestions)]
+        [ProducesResponseType(typeof(Response<IEnumerable<QuestionSummaryDto>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllPagedAsync()
+        {
+            var userId = GetCurrentUserId();
+            var result = await _mediator.Send(new GetQuestionsByUserQuery(userId));
+            return FinalResponse(result);
+        }
+
 
         [HttpGet(APIROUTES.Questions.Search)]
         [ProducesResponseType(typeof(Response<PaginatedResult<QuestionSummaryDto>>), StatusCodes.Status200OK)]
