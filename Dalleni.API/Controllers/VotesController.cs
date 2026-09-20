@@ -1,4 +1,5 @@
 using Dalleni.API.Bases;
+using Dalleni.Application.Features.Votes.Commands.DeleteVote;
 using Dalleni.Application.Features.Votes.Commands.VoteAnswer;
 using Dalleni.Application.Features.Votes.Commands.VoteQuestion;
 using Dalleni.Domin.Enums;
@@ -37,6 +38,16 @@ namespace Dalleni.API.Controllers
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var result = await _mediator.Send(new VoteAnswerCommand(id, userId, type));
+            return FinalResponse(result);
+        }
+
+        [HttpDelete(APIROUTES.Votes.RemoveVote)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> VoteAnswerAsync([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _mediator.Send(new DeleteVoteCommand(userId,id));
             return FinalResponse(result);
         }
     }
