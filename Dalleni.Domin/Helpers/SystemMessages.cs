@@ -140,5 +140,10 @@ namespace Dalleni.Domin.Helpers
         // RATING
         // ===============================
         public const string AlREADY_RATED = "You have already rated this service.";
+
+        // ===============================
+        // DEVICES
+        // ===============================
+        public const string DEVICE_ALREADY_REGISTERED = "This device token is already registered to another user.";
     }
 }

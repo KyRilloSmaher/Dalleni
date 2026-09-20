@@ -36,7 +36,9 @@ namespace Dalleni.Infrastructure.Persisitanse
             IOfficialEntityMembershipRepository officialEntityMemberships,
             IOfficialEntityInvitationRepository officialEntityInvitations,
             IDomainEventDispatcher dispatcher,
-            IRatingRepository ratings)
+            IRatingRepository ratings,
+            INotificationRepository notifications,
+            IUserDeviceRepository userDevices)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             Users = users;
@@ -58,6 +60,8 @@ namespace Dalleni.Infrastructure.Persisitanse
             OfficialEntityMemberships = officialEntityMemberships;
             _dispatcher = dispatcher;
             Ratings = ratings;
+            Notifications = notifications;
+            UserDevices = userDevices;
         }
 
         public IApplicationUserRepository Users { get; }
@@ -81,6 +85,8 @@ namespace Dalleni.Infrastructure.Persisitanse
         public IOfficialEntityMembershipRepository OfficialEntityMemberships { get; }
 
         public IOfficialEntityInvitationRepository OfficialEntityInvitations { get; }
+        public INotificationRepository Notifications { get; }
+        public IUserDeviceRepository UserDevices { get; }
 
         public IRepository<T> Repository<T>() where T : class
         {

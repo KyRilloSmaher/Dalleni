@@ -28,5 +28,10 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
 
         public async Task<bool> HasUserVotedAnswerAsync(Guid userId, Guid answerId, CancellationToken cancellationToken = default)
          => await GetQuery().AnyAsync(x => x.UserId == userId && x.AnswerId == answerId, cancellationToken);
+
+        public override void Remove(Vote entity)
+        {
+            DbSet.Remove(entity);
+        }
     }
 }

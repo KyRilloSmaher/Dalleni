@@ -66,7 +66,7 @@ namespace Dalleni.Domin.Helpers
             public const string GetById = Prefix + SingleRoute;
             public const string GetAllPaged = Root + "/questions";
             public const string GetByCategory = Prefix + "category/" + SingleRoute;
-          
+            public const string UserQuestions = Root + "/user/questions" ;
             public const string Search = Prefix + "search";
             public const string Related = Prefix + SingleRoute + "/related";
             public const string Similars = Prefix + "similars";
@@ -129,7 +129,7 @@ namespace Dalleni.Domin.Helpers
             private const string Prefix = Root + "/votes/";
             public const string VoteQuestion = Prefix + "question/" + SingleRoute;
             public const string VoteAnswer = Prefix + "answer/" + SingleRoute;
-            public const string RemoveVote = Prefix + "remove/" + SingleRoute;
+            public const string RemoveVote = Prefix + SingleRoute+"/remove";
         }
         #endregion
 
@@ -211,6 +211,26 @@ namespace Dalleni.Domin.Helpers
             public const string Update = Prefix + SingleRoute + "/update";
             public const string Delete = Prefix + SingleRoute + "/delete";
             public const string Restore = Prefix + SingleRoute + "/restore";
+        }
+        #endregion
+    
+        #region Notification Endpoints
+        public static class Notifications
+        {
+            private const string Prefix = Root + "/notifications/";
+            public const string GetMyNotifications = Prefix + "my-notifications";
+            public const string MarkAsRead = Prefix +SingleRoute+ "/mark-as-read";
+            public const string GetUnreadCount = Prefix + "unread-count";
+        }
+        #endregion
+    
+       #region UserDevices Endpoints
+        public static class UserDevices
+        {
+            private const string Prefix = Root + "/user-devices/";
+            public const string GetMyDevices = Prefix + "my-devices";
+            public const string DeactivateDevice = Prefix + "deactivate-device";
+            public const string RegisterDevice = Prefix + "register-device";
         }
         #endregion
     }

@@ -1,44 +1,98 @@
 ﻿using Dalleni.Application.Common;
+using Dalleni.Application.Services.Notifications;
 using Dalleni.Domin.DomainEvents.Events;
+using Dalleni.Domin.Enums;
 using Dalleni.Domin.Interfaces.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Dalleni.Application.DomainEventHandlers.AnswersEvents
 {
-    class QuestionAnsweredCreatedDomainEventHandler : INotificationHandler<DomainEventNotification<QuestionAnsweredDomainEvent>>
+    public class QuestionAnsweredCreatedDomainEventHandler
+        : INotificationHandler<
+            DomainEventNotification<QuestionAnsweredDomainEvent>>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<QuestionAnsweredCreatedDomainEventHandler> _logger;
 
         public QuestionAnsweredCreatedDomainEventHandler(
             IUnitOfWork unitOfWork,
+            INotificationService notificationService,
             ILogger<QuestionAnsweredCreatedDomainEventHandler> logger)
         {
             _unitOfWork = unitOfWork;
+            _notificationService = notificationService;
             _logger = logger;
         }
 
-        public async Task Handle(DomainEventNotification<QuestionAnsweredDomainEvent> notification, CancellationToken cancellationToken)
+        public async Task Handle(
+            DomainEventNotification<QuestionAnsweredDomainEvent> notification,
+            CancellationToken cancellationToken)
         {
             var domainEvent = notification.DomainEvent;
 
-            _logger.LogDebug($"Answer Deleted: {domainEvent.AnswerId}");
+            _logger.LogDebug(
+                "Answer created: {AnswerId}",
+                domainEvent.AnswerId);
 
-            var user = await _unitOfWork.Users.GetByIdAsync(domainEvent.UserId, true);
-            var question = await _unitOfWork.Questions.GetByIdAsync(domainEvent.QuestionId, true);
+            var user = await _unitOfWork.Users.GetByIdAsync(
+                domainEvent.UserId,
+                true,
+                cancellationToken);
 
-            if (user != null && question != null)
+            var question = await _unitOfWork.Questions.GetByIdAsync(
+                domainEvent.QuestionId,
+                true,
+                cancellationToken);
+
+            if (user is null)
             {
-                user.OnAnswerCreated();
-                question.OnAnswerAdded();
+                _logger.LogWarning(
+                    "User {UserId} was not found.",
+                    domainEvent.UserId);
+
                 return;
             }
 
-            _logger.LogWarning(user is null ? "No User Found !" : "Question Not Found !");
+            if (question is null)
+            {
+                _logger.LogWarning(
+                    "Question {QuestionId} was not found.",
+                    domainEvent.QuestionId);
+
+                return;
+            }
+
+            // Existing business logic
+            user.OnAnswerCreated();
+            question.OnAnswerAdded();
+
+            // Do not notify the question owner
+            // if they answered their own question.
+            if (question.UserId == domainEvent.UserId)
+            {
+                return;
+            }
+
+            await _notificationService.CreateAsync(
+                recipientId: question.UserId,
+                actorId: domainEvent.UserId,
+                type: NotificationType.NewAnswer,
+                entityType: NotificationEntityType.Answer,
+                entityId: domainEvent.AnswerId,
+                channels:
+                    NotificationChannel.InApp |
+                    NotificationChannel.RealTime |
+                    NotificationChannel.Push,
+                title:"New Answer Added",
+                message:"New Answer was Added To your Question",
+                cancellationToken);
+
+            _logger.LogDebug(
+                "New answer notification created. AnswerId: {AnswerId}, RecipientId: {RecipientId}",
+                domainEvent.AnswerId,
+                question.UserId);
         }
     }
 }

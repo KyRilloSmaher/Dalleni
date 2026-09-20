@@ -11,82 +11,101 @@ env:
   DOTNET_VERSION: '10.0.x'
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-  SOLUTION_PATH: 'Dalleni.API/Dalleni.API.slnx'  # Changed to use the existing .slnx file
+  SOLUTION_PATH: 'Dalleni.API/Dalleni.API.slnx'
 
 jobs:
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-        
-    - name: Cache NuGet packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.slnx') }}  # Updated to look for .slnx
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-          
-    - name: Restore dependencies
-      run: dotnet restore ${{ env.SOLUTION_PATH }}  # Using the solution path variable
-      
-    - name: Build solution
-      run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
-      
-    - name: Run tests
-      run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
-      
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results
-        path: |
-          **/TestResults/
-          **/coverage.cobertura.xml
-        retention-days: 30
-        
-    - name: Upload build artifacts (for debugging)
-      uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: build-logs
-        path: |
-          **/bin/
-          **/obj/
-        retention-days: 7
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.slnx') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # Provide a DUMMY Firebase service account so DI/config binding doesn't fail in CI
+      - name: Create dummy firebase-service-account.json
+        run: |
+          mkdir -p Dalleni.API
+          cat > Dalleni.API/firebase-service-account.json << 'EOF'
+          {
+            "type": "service_account",
+            "project_id": "ci-dummy",
+            "private_key_id": "dummy",
+            "private_key": "-----BEGIN PRIVATE KEY-----\nMIIB\n-----END PRIVATE KEY-----\n",
+            "client_email": "ci@ci-dummy.iam.gserviceaccount.com",
+            "client_id": "0",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": "https://dummy",
+            "universe_domain": "googleapis.com"
+          }
+          EOF
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Build solution
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
+        continue-on-error: false
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            **/TestResults/
+            **/coverage.cobertura.xml
+          retention-days: 30
+
+      - name: Upload build logs on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: build-logs
+          path: |
+            **/bin/
+            **/obj/
+          retention-days: 7
 
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
     needs: build-and-test
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-        
-    - name: Restore dependencies
-      run: dotnet restore ${{ env.SOLUTION_PATH }}  # Using the solution path variable
-        
-    - name: Run security scan
-      run: |
-        dotnet list ${{ env.SOLUTION_PATH }} package --vulnerable --include-transitive || true
-        dotnet list ${{ env.SOLUTION_PATH }} package --outdated || true
-        
-    - name: Check for vulnerabilities
-      run: |
-        dotnet restore ${{ env.SOLUTION_PATH }} --packages ./.packages
-        echo "✅ Security scan completed"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Check for vulnerable packages
+        run: |
+          dotnet list ${{ env.SOLUTION_PATH }} package --vulnerable --include-transitive || true
+
+      - name: Check for outdated packages
+        run: |
+          dotnet list ${{ env.SOLUTION_PATH }} package --outdated || true

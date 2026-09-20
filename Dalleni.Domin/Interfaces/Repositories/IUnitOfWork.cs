@@ -20,6 +20,8 @@ namespace Dalleni.Domin.Interfaces.Repositories
         IOfficialEntityMembershipRepository OfficialEntityMemberships { get; }
         IOfficialEntityInvitationRepository OfficialEntityInvitations { get; }
         IUserManager<TUser> UserManager { get; }
+        INotificationRepository Notifications { get; }
+        IUserDeviceRepository UserDevices { get; }
         IRepository<TEntity> Repository<TEntity>() where TEntity : class;
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         Task BeginTransactionAsync(CancellationToken cancellationToken = default);
