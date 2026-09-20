@@ -1,3 +1,4 @@
+
 using Dalleni.Domin.Models;
 using Dalleni.Domin.Models.Base;
 using Microsoft.AspNetCore.Identity;
@@ -29,6 +30,9 @@ namespace Dalleni.Infrastructure.Persisitanse
         public DbSet<Rating> Ratings => Set<Rating>();
         public DbSet<OfficialEntityMembership> OfficialEntityMemberships => Set<OfficialEntityMembership>();
         public DbSet<OfficialEntityInvitation> OfficialEntityInvitations => Set<OfficialEntityInvitation>();
+
+        public DbSet<Notification> Notifications => Set<Notification>();
+        public DbSet<UserDevice> UserDevices => Set<UserDevice>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

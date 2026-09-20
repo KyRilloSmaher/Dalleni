@@ -332,6 +332,68 @@ namespace Dalleni.Infrastructure.Migrations
                     b.ToTable("ExternalLogins");
                 });
 
+            modelBuilder.Entity("Dalleni.Domin.Models.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ActorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Channels")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("EntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("EntityType")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("RecipientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId");
+
+                    b.HasIndex("EntityType", "EntityId");
+
+                    b.HasIndex("RecipientId", "CreatedAt");
+
+                    b.HasIndex("RecipientId", "IsRead", "CreatedAt");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
             modelBuilder.Entity("Dalleni.Domin.Models.OfficialEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -819,6 +881,50 @@ namespace Dalleni.Infrastructure.Migrations
                     b.ToTable("Tags");
                 });
 
+            modelBuilder.Entity("Dalleni.Domin.Models.UserDevice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeviceToken")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastUsedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Platform")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceToken")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserDevices", (string)null);
+                });
+
             modelBuilder.Entity("Dalleni.Domin.Models.Vote", b =>
                 {
                     b.Property<Guid>("Id")
@@ -840,6 +946,9 @@ namespace Dalleni.Infrastructure.Migrations
                     b.Property<Guid?>("QuestionId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("QuestionId1")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -854,6 +963,8 @@ namespace Dalleni.Infrastructure.Migrations
                     b.HasIndex("AnswerId");
 
                     b.HasIndex("QuestionId");
+
+                    b.HasIndex("QuestionId1");
 
                     b.HasIndex("UserId", "AnswerId")
                         .IsUnique()
@@ -1058,6 +1169,20 @@ namespace Dalleni.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Dalleni.Domin.Models.Notification", b =>
+                {
+                    b.HasOne("Dalleni.Domin.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Dalleni.Domin.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Dalleni.Domin.Models.OfficialEntityInvitation", b =>
                 {
                     b.HasOne("Dalleni.Domin.Models.ApplicationUser", "InvitedByUser")
@@ -1213,6 +1338,15 @@ namespace Dalleni.Infrastructure.Migrations
                     b.Navigation("OfficialEntity");
                 });
 
+            modelBuilder.Entity("Dalleni.Domin.Models.UserDevice", b =>
+                {
+                    b.HasOne("Dalleni.Domin.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Dalleni.Domin.Models.Vote", b =>
                 {
                     b.HasOne("Dalleni.Domin.Models.Answer", "Answer")
@@ -1224,6 +1358,10 @@ namespace Dalleni.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Dalleni.Domin.Models.Question", null)
+                        .WithMany("Votes")
+                        .HasForeignKey("QuestionId1");
 
                     b.HasOne("Dalleni.Domin.Models.ApplicationUser", "User")
                         .WithMany("Votes")
@@ -1340,6 +1478,8 @@ namespace Dalleni.Infrastructure.Migrations
                     b.Navigation("QuestionTags");
 
                     b.Navigation("SavedQuestions");
+
+                    b.Navigation("Votes");
                 });
 
             modelBuilder.Entity("Dalleni.Domin.Models.Service", b =>

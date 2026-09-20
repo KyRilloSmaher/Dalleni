@@ -2,16 +2,23 @@ using Dalleni.Application.Commans;
 using Dalleni.Application.ExternalServicesAbstractions;
 using Dalleni.Application.Mappers;
 using Dalleni.Application.Services;
+using Dalleni.Application.Services.BackgroundJobs;
+using Dalleni.Application.Services.Notifications;
 using Dalleni.Domin.Interfaces.Handlers;
 using Dalleni.Domin.Interfaces.Repositories;
 using Dalleni.Domin.Interfaces.Services;
 using Dalleni.Domin.Models;
 using Dalleni.Domin.Settings;
 using Dalleni.Infrasstructure.Handlers;
+using Dalleni.Infrastructure.Commans;
 using Dalleni.Infrastructure.ExternalServices;
 using Dalleni.Infrastructure.ExternalServices.FilesUploader;
 using Dalleni.Infrastructure.Persisitanse;
 using Dalleni.Infrastructure.Persisitanse.Repositories;
+using Dalleni.Infrastructure.Services.BackgroundJobs;
+using Dalleni.Infrastructure.Services.Notifications;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -82,7 +89,8 @@ namespace Dalleni.Infrasstructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUnitOfWork<ApplicationUser>, UnitOfWork>();
             services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
-
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<IUserDeviceRepository, UserDeviceRepository>();
             //services.Scan(scan => scan
             //    .FromAssembliesOf<TokenService>()
             //    .AddClasses()
@@ -94,7 +102,10 @@ namespace Dalleni.Infrasstructure
             services.AddScoped<ISearchService, SearchService>();
             services.AddScoped<AzureBlobImageUploaderService>();
             services.AddScoped<CloudinaryImageUploaderService>();
-
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<INotificationPushService,FirebaseNotificationPushService>();
+            services.AddScoped<IBackgroundJobService, HangfireBackgroundJobService>();
+            services.AddScoped<INotificationDeliveryJob,NotificationDeliveryJob>();
             services.AddScoped<IImageUploaderServiceFactory, ImageUploaderServiceFactory>();
 
            services.AddScoped<IImageUploaderService>(sp =>
@@ -108,10 +119,10 @@ namespace Dalleni.Infrasstructure
             services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
             services.Configure<AzureSearchSettings>(configuration.GetSection("SearchSettings"));
 
-
             // ---------- Authentication ----------
             var jwtSettings = new JwtSettings();
             configuration.GetSection("JwtSettings").Bind(jwtSettings);
+
             services.AddSingleton(jwtSettings);
 
             services.AddAuthentication(options =>
@@ -120,7 +131,7 @@ namespace Dalleni.Infrasstructure
                 options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
             })
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
             {
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
@@ -129,31 +140,72 @@ namespace Dalleni.Infrasstructure
                 {
                     ValidateIssuer = jwtSettings.ValidateIssuer,
                     ValidIssuer = jwtSettings.Issuer,
+
                     ValidateAudience = jwtSettings.ValidateAudience,
                     ValidAudience = jwtSettings.Audience,
+
                     ValidateIssuerSigningKey = jwtSettings.ValidateIssuerSigningKey,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(jwtSettings.Key)),
+
                     ValidateLifetime = jwtSettings.ValidateLifeTime,
                     ClockSkew = TimeSpan.FromSeconds(30)
                 };
 
                 options.Events = new JwtBearerEvents
                 {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken =
+                            context.Request.Query["access_token"];
+
+                        var path =
+                            context.HttpContext.Request.Path;
+
+                        // SignalR sends the JWT through the access_token
+                        // query string when establishing the connection.
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            path.StartsWithSegments("/hubs/notifications"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    },
+
                     OnTokenValidated = async context =>
                     {
-                        var userId = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
-                        var securityStamp = context.Principal?.FindFirst("security_stamp")?.Value;
+                        var userId =
+                            context.Principal?
+                                .FindFirstValue(ClaimTypes.NameIdentifier);
 
-                        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(securityStamp))
+                        var securityStamp =
+                            context.Principal?
+                                .FindFirst("security_stamp")?
+                                .Value;
+
+                        if (string.IsNullOrEmpty(userId) ||
+                            string.IsNullOrEmpty(securityStamp))
                         {
                             context.Fail("Invalid token claims.");
                             return;
                         }
 
-                        var dbContext = context.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
+                        if (!Guid.TryParse(userId, out var parsedUserId))
+                        {
+                            context.Fail("Invalid user ID.");
+                            return;
+                        }
+
+                        var dbContext =
+                            context.HttpContext.RequestServices
+                                .GetRequiredService<ApplicationDbContext>();
+
                         var user = await dbContext.Users
                             .AsNoTracking()
-                            .FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId));
+                            .FirstOrDefaultAsync(
+                                u => u.Id == parsedUserId);
 
                         if (user == null)
                         {
@@ -161,22 +213,59 @@ namespace Dalleni.Infrasstructure
                             return;
                         }
 
-                        if (!string.Equals(user.SecurityStamp, securityStamp, StringComparison.Ordinal))
+                        if (!string.Equals(
+                                user.SecurityStamp,
+                                securityStamp,
+                                StringComparison.Ordinal))
                         {
-                            context.Fail("Security stamp mismatch - token revoked.");
+                            context.Fail(
+                                "Security stamp mismatch - token revoked.");
                         }
                     }
                 };
             })
             .AddGoogle(options =>
             {
-                options.ClientId = configuration["Authentication:Google:ClientId"];
-                options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+                options.ClientId =
+                    configuration["Authentication:Google:ClientId"];
+
+                options.ClientSecret =
+                    configuration["Authentication:Google:ClientSecret"];
+
                 options.CallbackPath = "/signin-google";
             });
 
             // ---------- AutoMapper ----------
             services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
+
+
+            // ------------ Firebase --------------
+              var firebaseOptions =
+                    configuration
+                        .GetSection(FirebaseOptions.SectionName)
+                        .Get<FirebaseOptions>();
+
+                if (firebaseOptions is null ||
+                    string.IsNullOrWhiteSpace(firebaseOptions.ServiceAccountPath))
+                {
+                    throw new InvalidOperationException(
+                        "Firebase configuration is missing.");
+                }
+                var serviceAccountPath =Path.Combine(AppContext.BaseDirectory,firebaseOptions.ServiceAccountPath);
+
+                if (!File.Exists(serviceAccountPath))
+                {
+                    throw new FileNotFoundException(
+                        "Firebase service account file was not found.",
+                        serviceAccountPath);
+                }
+
+                FirebaseApp.Create(new AppOptions
+                {
+                    Credential = GoogleCredential.FromFile(firebaseOptions.ServiceAccountPath)
+                });
+
+                
             return services;
         }
     }

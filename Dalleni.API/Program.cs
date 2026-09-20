@@ -1,4 +1,7 @@
-﻿using Dalleni.Application.Features.Authantications.SignUp;
+﻿using Dalleni.API.Hubs;
+using Dalleni.API.Services.Notifications;
+using Dalleni.Application.Features.Authantications.SignUp;
+using Dalleni.Application.Services.Notifications;
 using Dalleni.Application.Validators.Users;
 using Dalleni.Domin.Interfaces.Handlers;
 using Dalleni.Domin.ResponsePattern;
@@ -6,6 +9,8 @@ using Dalleni.Infrasstructure;
 using Dalleni.Infrasstructure.Handlers;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -14,6 +19,7 @@ using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Threading.RateLimiting;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +37,8 @@ Console.WriteLine($"🌍 Running in {builder.Environment.EnvironmentName} enviro
 
 
 builder.Services.AddSingleton<IResponseHandler, ResponseHandler>();
+builder.Services.AddScoped<INotificationRealtimeService,NotificationRealtimeService>();
+
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {
@@ -89,15 +97,65 @@ builder.Services.AddSwaggerGen(c =>
 #endregion
 
 #region ------------------------ AllowCORS ------------------------------
+// var cors = "_DefaultCors";
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy(name: cors, policy =>
+//     {
+//         policy.AllowAnyHeader();
+//         policy.AllowAnyMethod();
+//         policy.AllowAnyOrigin();
+//     });
+// });
+
 var cors = "_DefaultCors";
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: cors, policy =>
+    options.AddPolicy(cors, policy =>
     {
-        policy.AllowAnyHeader();
-        policy.AllowAnyMethod();
-        policy.AllowAnyOrigin();
+        policy
+            .WithOrigins("http://localhost:5500")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
+});
+#endregion
+
+#region --------------------- configure JSON enum serialization globally --------------
+
+
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter());
+    });
+#endregion
+
+#region  -------------- Hangfire --------------------
+builder.Services.AddHangfire(configuration =>
+{
+    configuration
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(
+            builder.Configuration.GetConnectionString("Local"),
+            new SqlServerStorageOptions
+            {
+                CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                QueuePollInterval = TimeSpan.Zero,
+                UseRecommendedIsolationLevel = true,
+                DisableGlobalLocks = true
+            });
+});
+builder.Services.AddHangfireServer(options =>
+{
+    options.WorkerCount = 5;
 });
 #endregion
 
@@ -126,6 +184,8 @@ builder.Services.AddRateLimiter(options =>
 });
 #endregion
 
+
+
 #region -------------------- API Versioning --------------------
 builder.Services.AddApiVersioning(options =>
 {
@@ -151,19 +211,28 @@ builder.Services.AddMediatR(cfg =>
 });
 #endregion
 
+#region  ------------------SignalR Registration ----------------------
+builder.Services.AddSignalR();
+#endregion
+
 var app = builder.Build();
 
-//if (app.Environment.IsDevelopment())
-//{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    //app.MapOpenApi();
-//}
+app.UseSwagger();
+app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
 app.UseCors(cors);
+
 app.UseMiddleware<Dalleni.API.Middlewares.ErrorHandlerMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+#region -------------------- HUBS --------------------
+app.MapHub<NotificationHub>("/hubs/notifications");
+#endregion
+
+app.UseHangfireDashboard("/hangfire");
+
 app.MapControllers();
+
 app.Run();

@@ -49,6 +49,7 @@ namespace Dalleni.API.Bases
         {
             var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value 
                               ?? User?.FindFirst("sub")?.Value;
+                              
 
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
             {

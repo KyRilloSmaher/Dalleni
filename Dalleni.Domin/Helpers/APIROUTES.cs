@@ -129,7 +129,7 @@ namespace Dalleni.Domin.Helpers
             private const string Prefix = Root + "/votes/";
             public const string VoteQuestion = Prefix + "question/" + SingleRoute;
             public const string VoteAnswer = Prefix + "answer/" + SingleRoute;
-            public const string RemoveVote = Prefix + "remove/" + SingleRoute;
+            public const string RemoveVote = Prefix + SingleRoute+"/remove";
         }
         #endregion
 
