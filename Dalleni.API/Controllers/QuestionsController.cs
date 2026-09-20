@@ -50,8 +50,9 @@ namespace Dalleni.API.Controllers
         }
 
         [HttpGet(APIROUTES.Questions.UserQuestions)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(Response<IEnumerable<QuestionSummaryDto>>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllPagedAsync()
+        public async Task<IActionResult> GetUserQuestionsAsync()
         {
             var userId = GetCurrentUserId();
             var result = await _mediator.Send(new GetQuestionsByUserQuery(userId));
