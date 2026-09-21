@@ -97,30 +97,30 @@ builder.Services.AddSwaggerGen(c =>
 #endregion
 
 #region ------------------------ AllowCORS ------------------------------
-// var cors = "_DefaultCors";
-// builder.Services.AddCors(options =>
-// {
-//     options.AddPolicy(name: cors, policy =>
-//     {
-//         policy.AllowAnyHeader();
-//         policy.AllowAnyMethod();
-//         policy.AllowAnyOrigin();
-//     });
-// });
-
 var cors = "_DefaultCors";
-
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(cors, policy =>
+    options.AddPolicy(name: cors, policy =>
     {
-        policy
-            .WithOrigins("http://localhost:5500")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+        policy.AllowAnyOrigin();
     });
 });
+
+// var cors = "_DefaultCors";
+
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy(cors, policy =>
+//     {
+//         policy
+//             .WithOrigins("http://localhost:5500")
+//             .AllowAnyHeader()
+//             .AllowAnyMethod()
+//             .AllowCredentials();
+//     });
+// });
 #endregion
 
 #region --------------------- configure JSON enum serialization globally --------------
