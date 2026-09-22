@@ -1,3 +1,4 @@
+using Dalleni.Application.DTOs.Responses.Votes;
 using Dalleni.Domin.Enums;
 using Dalleni.Domin.Helpers;
 using Dalleni.Domin.Interfaces.Handlers;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Dalleni.Application.Features.Votes.Commands.VoteQuestion
 {
-    public class VoteQuestionHandler : IRequestHandler<VoteQuestionCommand, Response<bool>>
+    public class VoteQuestionHandler : IRequestHandler<VoteQuestionCommand, Response<NewVoteResponse>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IResponseHandler _responseHandler;
@@ -22,51 +23,68 @@ namespace Dalleni.Application.Features.Votes.Commands.VoteQuestion
             _logger = logger;
         }
 
-        public async Task<Response<bool>> Handle(VoteQuestionCommand request, CancellationToken cancellationToken)
+        public async Task<Response<NewVoteResponse>> Handle(VoteQuestionCommand request, CancellationToken cancellationToken)
         {
             try
             {
                 var question = await _unitOfWork.Questions.GetByIdAsync(request.QuestionId, true);
                 if (question == null)
-                    return _responseHandler.NotFound<bool>(SystemMessages.RECORD_NOT_FOUND);
+                    return _responseHandler.NotFound<NewVoteResponse>(SystemMessages.RECORD_NOT_FOUND);
 
                 if (question.UserId == request.UserId)
-                    return _responseHandler.BadRequest<bool>(SystemMessages.CANNOT_VOTE_OWN_QUESTION);
+                    return _responseHandler.BadRequest<NewVoteResponse>(SystemMessages.CANNOT_VOTE_OWN_QUESTION);
 
                 var existingVote = await _unitOfWork.Votes.GetUserVoteForQuestionAsync(request.UserId, request.QuestionId, true, cancellationToken);
+                Vote? vote = null;
 
                 if (existingVote != null)
                 {
                     if (existingVote.Type == request.Type)
                     {
-                        return _responseHandler.BadRequest<bool>(SystemMessages.AlREADY_VOTED);
+                        return _responseHandler.BadRequest<NewVoteResponse>(SystemMessages.AlREADY_VOTED);
                     }
+
+                    vote = existingVote;
+
+                    if (existingVote.Type == VoteType.Downvote)
+                        question.DecreaseVote(VoteType.Downvote);
                     else
-                    {
-                        if (existingVote.Type == VoteType.Downvote)
-                            question.DecreaseVote(VoteType.Downvote);
-                        else
-                            question.DecreaseVote(VoteType.Upvote);
-                            
-                        existingVote.UpdateType(request.Type);
-                    }
+                        question.DecreaseVote(VoteType.Upvote);
+
+                    existingVote.UpdateType(request.Type);
                 }
                 else
                 {
-                    var vote = Vote.Create(request.UserId, request.Type, questionId: request.QuestionId);
+                    vote = Vote.Create(
+                        request.UserId,
+                        request.Type,
+                        questionId: request.QuestionId);
+
                     await _unitOfWork.Votes.AddAsync(vote);
                 }
-                // Update Question internal state
+
                 question.ApplyVote(request.Type);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return _responseHandler.Success(true, SystemMessages.SUCCESS);
+                var questionAfterCommit =
+                    await _unitOfWork.Questions.GetByIdAsync(
+                        request.QuestionId,
+                        false);
+
+                var dto = NewVoteResponse.Create(
+                    voteId: vote.Id,
+                    newDownvotesCount: questionAfterCommit.DownVotes,
+                    newUpvotesCount: questionAfterCommit.UpVotes
+                );
+
+
+                return _responseHandler.Success(dto, SystemMessages.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error voting on question {QuestionId}", request.QuestionId);
-                return _responseHandler.BadRequest<bool>(ex.Message);
+                return _responseHandler.BadRequest<NewVoteResponse>(ex.Message);
             }
         }
     }

@@ -127,6 +127,8 @@ namespace Dalleni.Domin.Helpers
         public static class Votes
         {
             private const string Prefix = Root + "/votes/";
+            public const string GetUserVotedQuestions = Prefix + "user/votes/questions";
+            public const string GetUserVotedAnswers = Prefix + "user/votes/answers";
             public const string VoteQuestion = Prefix + "question/" + SingleRoute;
             public const string VoteAnswer = Prefix + "answer/" + SingleRoute;
             public const string RemoveVote = Prefix + SingleRoute+"/remove";
