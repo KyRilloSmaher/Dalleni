@@ -11,5 +11,6 @@ namespace Dalleni.Domin.Interfaces.Repositories
         Task<int> CountAnswerVotesAsync(Guid answerId, VoteType type, CancellationToken cancellationToken = default);
         Task<bool> HasUserVotedQuestionAsync(Guid userId, Guid questionId, CancellationToken cancellationToken = default);
         Task<bool> HasUserVotedAnswerAsync(Guid userId, Guid answerId, CancellationToken cancellationToken = default);
+        Task<IEnumerable<Vote>> GetAllUserVotesAsync( Guid userId , bool TargetVotesIsQuestions = true ,  CancellationToken cancellationToken = default);
     }
 }

@@ -29,6 +29,32 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         public async Task<bool> HasUserVotedAnswerAsync(Guid userId, Guid answerId, CancellationToken cancellationToken = default)
          => await GetQuery().AnyAsync(x => x.UserId == userId && x.AnswerId == answerId, cancellationToken);
 
+        public async Task<IEnumerable<Vote>> GetAllUserVotesAsync( Guid userId, bool TargetVotesIsQuestions = true ,CancellationToken cancellationToken = default)
+        {
+            IQueryable<Vote> query = GetQuery();
+
+            if (TargetVotesIsQuestions)
+            {
+                query = query
+                    .Where(v => v.UserId == userId && v.QuestionId.HasValue)
+                    .Include(v => v.Question)
+                        .ThenInclude(q => q.Category)
+                    .Include(v => v.Question)
+                        .ThenInclude(q => q.User)
+                    .Include(v => v.Question)
+                        .ThenInclude(q => q.QuestionTags)
+                            .ThenInclude(qt => qt.Tag);
+            }
+            else
+            {
+                query = query
+                    .Where(v => v.UserId == userId && v.AnswerId.HasValue)
+                    .Include(v => v.Answer)
+                        .ThenInclude(a => a.User);
+            }
+
+            return await query.ToListAsync(cancellationToken);
+        }
         public override void Remove(Vote entity)
         {
             DbSet.Remove(entity);
