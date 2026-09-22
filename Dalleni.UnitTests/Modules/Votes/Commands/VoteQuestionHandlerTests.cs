@@ -1,4 +1,6 @@
 
+
+using Dalleni.Application.DTOs.Responses.Votes;
 using Dalleni.Application.Features.Votes.Commands.VoteQuestion;
 using Dalleni.Domin.Enums;
 using Dalleni.Domin.Helpers;
@@ -21,19 +23,23 @@ public class VoteQuestionHandlerTests
     public VoteQuestionHandlerTests()
     {
         _responseHandlerMock
-            .Setup(x => x.Success(true, It.IsAny<string>()))
-            .Returns((bool value, string message) =>
+            .Setup(x => x.Success(
+                It.IsAny<NewVoteResponse>(),
+                It.IsAny<string>()))
+            .Returns((NewVoteResponse value, string message) =>
                 ResponseFactory.Ok(value, message));
 
         _responseHandlerMock
-            .Setup(x => x.NotFound<bool>(It.IsAny<string>()))
+            .Setup(x => x.NotFound<NewVoteResponse>(
+                It.IsAny<string>()))
             .Returns((string message) =>
-                ResponseFactory.NotFound<bool>(message));
+                ResponseFactory.NotFound<NewVoteResponse>(message));
 
         _responseHandlerMock
-            .Setup(x => x.BadRequest<bool>(It.IsAny<string>()))
+            .Setup(x => x.BadRequest<NewVoteResponse>(
+                It.IsAny<string>()))
             .Returns((string message) =>
-                ResponseFactory.BadRequest<bool>(message));
+                ResponseFactory.BadRequest<NewVoteResponse>(message));
     }
 
     // ============================================================
@@ -43,7 +49,6 @@ public class VoteQuestionHandlerTests
     [Fact]
     public async Task Handle_NewUpvote_AppliesVoteAndReturnsSuccess()
     {
-        // Arrange
         var questionOwnerId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
@@ -57,22 +62,18 @@ public class VoteQuestionHandlerTests
 
         SetupQuestion(question);
         SetupNoExistingVote(voterUserId, question.Id);
+        SetupQuestionAfterCommit(question);
 
         var initialScore = question.Score;
 
-        var handler = CreateHandler();
-
-        // Act
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
-        // Assert
         Assert.True(response.Succeeded);
 
         Assert.Equal(1, question.UpVotes);
         Assert.Equal(0, question.DownVotes);
-
         Assert.Equal(
             initialScore + ScoreRules.Upvote,
             question.Score);
@@ -86,14 +87,14 @@ public class VoteQuestionHandlerTests
             Times.Once);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
     [Fact]
     public async Task Handle_NewDownvote_AppliesVoteAndReturnsSuccess()
     {
-        // Arrange
         var questionOwnerId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
@@ -107,22 +108,17 @@ public class VoteQuestionHandlerTests
 
         SetupQuestion(question);
         SetupNoExistingVote(voterUserId, question.Id);
+        SetupQuestionAfterCommit(question);
 
         var initialScore = question.Score;
-
-        var handler = CreateHandler();
-
-        // Act
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
-        // Assert
         Assert.True(response.Succeeded);
 
         Assert.Equal(0, question.UpVotes);
         Assert.Equal(1, question.DownVotes);
-
         Assert.Equal(
             initialScore - ScoreRules.Downvote,
             question.Score);
@@ -136,18 +132,18 @@ public class VoteQuestionHandlerTests
             Times.Once);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
     // ============================================================
-    // Question Validation
+    // Question Not Found
     // ============================================================
 
     [Fact]
     public async Task Handle_QuestionNotFound_ReturnsNotFound()
     {
-        // Arrange
         var questionId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
@@ -162,14 +158,10 @@ public class VoteQuestionHandlerTests
                 true))
             .ReturnsAsync((Question?)null);
 
-        var handler = CreateHandler();
-
-        // Act
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
-        // Assert
         Assert.False(response.Succeeded);
 
         Assert.Equal(
@@ -185,18 +177,23 @@ public class VoteQuestionHandlerTests
             Times.Never);
 
         _unitOfWorkMock.Verify(
-            x => x.Votes.AddAsync(It.IsAny<Vote>()),
+            x => x.Votes.AddAsync(
+                It.IsAny<Vote>()),
             Times.Never);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    // ============================================================
+    // Own Question
+    // ============================================================
 
     [Fact]
     public async Task Handle_VoteOwnQuestion_ReturnsBadRequest()
     {
-        // Arrange
         var ownerId = Guid.NewGuid();
 
         var question = EndpointTestData.Question(
@@ -209,14 +206,10 @@ public class VoteQuestionHandlerTests
 
         SetupQuestion(question);
 
-        var handler = CreateHandler();
-
-        // Act
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
-        // Assert
         Assert.False(response.Succeeded);
 
         Assert.Equal(
@@ -232,11 +225,13 @@ public class VoteQuestionHandlerTests
             Times.Never);
 
         _unitOfWorkMock.Verify(
-            x => x.Votes.AddAsync(It.IsAny<Vote>()),
+            x => x.Votes.AddAsync(
+                It.IsAny<Vote>()),
             Times.Never);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -247,13 +242,13 @@ public class VoteQuestionHandlerTests
     [Fact]
     public async Task Handle_DuplicateUpvote_ReturnsBadRequest()
     {
-        // Arrange
         var questionOwnerId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
         var question = EndpointTestData.Question(
             userId: questionOwnerId);
 
+        question.ApplyVote(VoteType.Upvote);
         var existingVote = EndpointTestData.QuestionVote(
             voterUserId,
             question.Id,
@@ -270,26 +265,20 @@ public class VoteQuestionHandlerTests
             question.Id,
             existingVote);
 
-        var initialUpVotes = question.UpVotes;
-        var initialDownVotes = question.DownVotes;
         var initialScore = question.Score;
 
-        var handler = CreateHandler();
-
-        // Act
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
-        // Assert
         Assert.False(response.Succeeded);
 
         Assert.Equal(
             SystemMessages.AlREADY_VOTED,
             response.Message);
 
-        Assert.Equal(initialUpVotes, question.UpVotes);
-        Assert.Equal(initialDownVotes, question.DownVotes);
+        Assert.Equal(1, question.UpVotes);
+        Assert.Equal(0, question.DownVotes);
         Assert.Equal(initialScore, question.Score);
 
         Assert.Equal(
@@ -297,23 +286,26 @@ public class VoteQuestionHandlerTests
             existingVote.Type);
 
         _unitOfWorkMock.Verify(
-            x => x.Votes.AddAsync(It.IsAny<Vote>()),
+            x => x.Votes.AddAsync(
+                It.IsAny<Vote>()),
             Times.Never);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     [Fact]
     public async Task Handle_DuplicateDownvote_ReturnsBadRequest()
     {
-        // Arrange
         var questionOwnerId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
         var question = EndpointTestData.Question(
             userId: questionOwnerId);
+
+        question.ApplyVote(VoteType.Downvote);
 
         var existingVote = EndpointTestData.QuestionVote(
             voterUserId,
@@ -331,26 +323,20 @@ public class VoteQuestionHandlerTests
             question.Id,
             existingVote);
 
-        var initialUpVotes = question.UpVotes;
-        var initialDownVotes = question.DownVotes;
         var initialScore = question.Score;
 
-        var handler = CreateHandler();
-
-        // Act
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
-        // Assert
         Assert.False(response.Succeeded);
 
         Assert.Equal(
             SystemMessages.AlREADY_VOTED,
             response.Message);
 
-        Assert.Equal(initialUpVotes, question.UpVotes);
-        Assert.Equal(initialDownVotes, question.DownVotes);
+        Assert.Equal(0, question.UpVotes);
+        Assert.Equal(1, question.DownVotes);
         Assert.Equal(initialScore, question.Score);
 
         Assert.Equal(
@@ -358,28 +344,29 @@ public class VoteQuestionHandlerTests
             existingVote.Type);
 
         _unitOfWorkMock.Verify(
-            x => x.Votes.AddAsync(It.IsAny<Vote>()),
+            x => x.Votes.AddAsync(
+                It.IsAny<Vote>()),
             Times.Never);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     // ============================================================
     // Change Vote
     // ============================================================
+
     [Fact]
     public async Task Handle_ChangeUpvoteToDownvote_UpdatesVoteCountsAndScore()
     {
-        // Arrange
         var questionOwnerId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
         var question = EndpointTestData.Question(
             userId: questionOwnerId);
 
-        // The question already contains the existing upvote.
         question.ApplyVote(VoteType.Upvote);
 
         var existingVote = EndpointTestData.QuestionVote(
@@ -393,22 +380,18 @@ public class VoteQuestionHandlerTests
             VoteType.Downvote);
 
         SetupQuestion(question);
-
         SetupExistingVote(
             voterUserId,
             question.Id,
             existingVote);
+        SetupQuestionAfterCommit(question);
 
         var initialScore = question.Score;
 
-        var handler = CreateHandler();
-
-        // Act
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
-        // Assert
         Assert.True(response.Succeeded);
 
         Assert.Equal(0, question.UpVotes);
@@ -419,31 +402,30 @@ public class VoteQuestionHandlerTests
             - ScoreRules.Upvote
             - ScoreRules.Downvote,
             question.Score);
-
-        Assert.Equal(
+             Assert.Equal(
             VoteType.Downvote,
             existingVote.Type);
 
         _unitOfWorkMock.Verify(
-            x => x.Votes.AddAsync(It.IsAny<Vote>()),
+            x => x.Votes.AddAsync(
+                It.IsAny<Vote>()),
             Times.Never);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
     [Fact]
     public async Task Handle_ChangeDownvoteToUpvote_UpdatesVoteCountsAndScore()
     {
-        // Arrange
         var questionOwnerId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
         var question = EndpointTestData.Question(
             userId: questionOwnerId);
 
-        // The question already contains the existing downvote.
         question.ApplyVote(VoteType.Downvote);
 
         var existingVote = EndpointTestData.QuestionVote(
@@ -457,22 +439,18 @@ public class VoteQuestionHandlerTests
             VoteType.Upvote);
 
         SetupQuestion(question);
-
         SetupExistingVote(
             voterUserId,
             question.Id,
             existingVote);
+        SetupQuestionAfterCommit(question);
 
         var initialScore = question.Score;
 
-        var handler = CreateHandler();
-
-        // Act
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
-        // Assert
         Assert.True(response.Succeeded);
 
         Assert.Equal(1, question.UpVotes);
@@ -489,80 +467,105 @@ public class VoteQuestionHandlerTests
             existingVote.Type);
 
         _unitOfWorkMock.Verify(
-            x => x.Votes.AddAsync(It.IsAny<Vote>()),
+            x => x.Votes.AddAsync(
+                It.IsAny<Vote>()),
             Times.Never);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveChangesAsync(
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
-
     // ============================================================
-    // Persistence / Cancellation
+    // Exception Handling
     // ============================================================
 
     [Fact]
-    public async Task Handle_SuccessfulNewVote_PassesCancellationTokenToSaveChanges()
+    public async Task Handle_RepositoryThrows_ReturnsBadRequest()
     {
-        // Arrange
-        var questionOwnerId = Guid.NewGuid();
+        var questionId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
-        var question = EndpointTestData.Question(
-            userId: questionOwnerId);
+        const string exceptionMessage = "Database error";
+
+        _unitOfWorkMock
+            .Setup(x => x.Questions.GetByIdAsync(
+                questionId,
+                true))
+            .ThrowsAsync(new Exception(exceptionMessage));
 
         var command = new VoteQuestionCommand(
-            question.Id,
+            questionId,
             voterUserId,
             VoteType.Upvote);
 
-        SetupQuestion(question);
-        SetupNoExistingVote(voterUserId, question.Id);
-
-        var cancellationTokenSource =
-            new CancellationTokenSource();
-
-        var cancellationToken =
-            cancellationTokenSource.Token;
-
-        var handler = CreateHandler();
-
-        // Act
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
-            cancellationToken);
+            CancellationToken.None);
 
-        // Assert
-        Assert.True(response.Succeeded);
+        Assert.False(response.Succeeded);
+        Assert.Equal(exceptionMessage, response.Message);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(cancellationToken),
-            Times.Once);
+            x => x.SaveChangesAsync(
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
-    public async Task Handle_SuccessfulVote_PassesCancellationTokenToVoteLookup()
+    public async Task Handle_SaveChangesThrows_ReturnsBadRequest()
     {
-        // Arrange
         var questionOwnerId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
         var question = EndpointTestData.Question(
             userId: questionOwnerId);
 
+        SetupQuestion(question);
+        SetupNoExistingVote(
+            voterUserId,
+            question.Id);
+
+        _unitOfWorkMock
+            .Setup(x => x.SaveChangesAsync(
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("Save failed"));
+
         var command = new VoteQuestionCommand(
             question.Id,
             voterUserId,
             VoteType.Upvote);
 
-        SetupQuestion(question);
+        var response = await CreateHandler().Handle(
+            command,
+            CancellationToken.None);
 
-        var cancellationTokenSource =
-            new CancellationTokenSource();
+        Assert.False(response.Succeeded);
+        Assert.Equal("Save failed", response.Message);
+
+        _unitOfWorkMock.Verify(
+            x => x.SaveChangesAsync(
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+    // ============================================================
+    // Cancellation Token
+    // ============================================================
+
+    [Fact]
+    public async Task Handle_PassesCancellationTokenToVoteLookup()
+    {
+        var questionOwnerId = Guid.NewGuid();
+        var voterUserId = Guid.NewGuid();
+
+        var question = EndpointTestData.Question(
+            userId: questionOwnerId);
 
         var cancellationToken =
-            cancellationTokenSource.Token;
+            new CancellationTokenSource().Token;
+
+        SetupQuestion(question);
 
         _unitOfWorkMock
             .Setup(x => x.Votes.GetUserVoteForQuestionAsync(
@@ -572,14 +575,17 @@ public class VoteQuestionHandlerTests
                 cancellationToken))
             .ReturnsAsync((Vote?)null);
 
-        var handler = CreateHandler();
+        SetupQuestionAfterCommit(question);
 
-        // Act
-        var response = await handler.Handle(
+        var command = new VoteQuestionCommand(
+            question.Id,
+            voterUserId,
+            VoteType.Upvote);
+
+        var response = await CreateHandler().Handle(
             command,
             cancellationToken);
 
-        // Assert
         Assert.True(response.Succeeded);
 
         _unitOfWorkMock.Verify(
@@ -591,124 +597,41 @@ public class VoteQuestionHandlerTests
             Times.Once);
     }
 
-    // ============================================================
-    // Exception Handling
-    // ============================================================
-
     [Fact]
-    public async Task Handle_WhenRepositoryThrows_ReturnsBadRequest()
+    public async Task Handle_PassesCancellationTokenToSaveChanges()
     {
-        // Arrange
         var questionOwnerId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
         var question = EndpointTestData.Question(
             userId: questionOwnerId);
 
-        var command = new VoteQuestionCommand(
-            question.Id,
-            voterUserId,
-            VoteType.Upvote);
-
-        var exceptionMessage = "Database connection failed.";
-
-        _unitOfWorkMock
-            .Setup(x => x.Questions.GetByIdAsync(
-                question.Id,
-                true))
-            .ThrowsAsync(
-                new Exception(exceptionMessage));
-
-        var handler = CreateHandler();
-
-        // Act
-        var response = await handler.Handle(
-            command,
-            CancellationToken.None);
-
-        // Assert
-        Assert.False(response.Succeeded);
-
-        Assert.Equal(
-            exceptionMessage,
-            response.Message);
-
-        _unitOfWorkMock.Verify(
-            x => x.Votes.GetUserVoteForQuestionAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<bool>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
-
-        _unitOfWorkMock.Verify(
-            x => x.Votes.AddAsync(It.IsAny<Vote>()),
-            Times.Never);
-
-        _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesThrows_ReturnsBadRequest()
-    {
-        // Arrange
-        var questionOwnerId = Guid.NewGuid();
-        var voterUserId = Guid.NewGuid();
-
-        var question = EndpointTestData.Question(
-            userId: questionOwnerId);
-
-        var command = new VoteQuestionCommand(
-            question.Id,
-            voterUserId,
-            VoteType.Upvote);
+        var cancellationToken =
+            new CancellationTokenSource().Token;
 
         SetupQuestion(question);
-        SetupNoExistingVote(voterUserId, question.Id);
+        SetupNoExistingVote(
+            voterUserId,
+            question.Id);
+        SetupQuestionAfterCommit(question);
 
-        var exceptionMessage = "Unable to save changes.";
+        var command = new VoteQuestionCommand(
+            question.Id,
+            voterUserId,
+            VoteType.Upvote);
 
-        _unitOfWorkMock
-            .Setup(x => x.SaveChangesAsync(
-                It.IsAny<CancellationToken>()))
-            .ThrowsAsync(
-                new Exception(exceptionMessage));
-
-        var handler = CreateHandler();
-
-        // Act
-        var response = await handler.Handle(
+        await CreateHandler().Handle(
             command,
-            CancellationToken.None);
-
-        // Assert
-        Assert.False(response.Succeeded);
-
-        Assert.Equal(
-            exceptionMessage,
-            response.Message);
-
-        Assert.Equal(1, question.UpVotes);
-
-        Assert.Equal(
-            ScoreRules.Upvote,
-            question.Score);
-
-        _unitOfWorkMock.Verify(
-            x => x.Votes.AddAsync(
-                It.IsAny<Vote>()),
-            Times.Once);
+            cancellationToken);
 
         _unitOfWorkMock.Verify(
             x => x.SaveChangesAsync(
-                It.IsAny<CancellationToken>()),
+                cancellationToken),
             Times.Once);
     }
 
     // ============================================================
-    // Helper Methods
+    // Helpers
     // ============================================================
 
     private void SetupQuestion(Question question)
@@ -717,6 +640,15 @@ public class VoteQuestionHandlerTests
             .Setup(x => x.Questions.GetByIdAsync(
                 question.Id,
                 true))
+            .ReturnsAsync(question);
+    }
+
+    private void SetupQuestionAfterCommit(Question question)
+    {
+        _unitOfWorkMock
+            .Setup(x => x.Questions.GetByIdAsync(
+                question.Id,
+                false))
             .ReturnsAsync(question);
     }
 

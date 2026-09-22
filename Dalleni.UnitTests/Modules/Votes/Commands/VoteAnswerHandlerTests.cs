@@ -1,4 +1,4 @@
-
+ using Dalleni.Application.DTOs.Responses.Votes;
 using Dalleni.Application.Features.Votes.Commands.VoteAnswer;
 using Dalleni.Domin.Enums;
 using Dalleni.Domin.Helpers;
@@ -21,24 +21,28 @@ public class VoteAnswerHandlerTests
     public VoteAnswerHandlerTests()
     {
         _responseHandlerMock
-            .Setup(x => x.Success(true, It.IsAny<string>()))
-            .Returns((bool b, string msg) =>
-                ResponseFactory.Ok(b, msg));
+            .Setup(x => x.Success(
+                It.IsAny<NewVoteResponse>(),
+                It.IsAny<string>()))
+            .Returns((NewVoteResponse value, string message) =>
+                ResponseFactory.Ok(value, message));
 
         _responseHandlerMock
-            .Setup(x => x.NotFound<bool>(It.IsAny<string>()))
-            .Returns((string msg) =>
-                ResponseFactory.NotFound<bool>(msg));
+            .Setup(x => x.NotFound<NewVoteResponse>(
+                It.IsAny<string>()))
+            .Returns((string message) =>
+                ResponseFactory.NotFound<NewVoteResponse>(message));
 
         _responseHandlerMock
-            .Setup(x => x.BadRequest<bool>(It.IsAny<string>()))
-            .Returns((string msg) =>
-                ResponseFactory.BadRequest<bool>(msg));
+            .Setup(x => x.BadRequest<NewVoteResponse>(
+                It.IsAny<string>()))
+            .Returns((string message) =>
+                ResponseFactory.BadRequest<NewVoteResponse>(message));
     }
 
-    // =========================================================
+    // ============================================================
     // New Vote
-    // =========================================================
+    // ============================================================
 
     [Fact]
     public async Task Handle_NewUpvote_AppliesVoteAndReturnsSuccess()
@@ -58,10 +62,11 @@ public class VoteAnswerHandlerTests
         SetupNoExistingVote(
             voterUserId,
             answer.Id);
+        SetupAnswerAfterCommit(answer);
 
-        var handler = CreateHandler();
+        var initialScore = answer.Score;
 
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
@@ -70,7 +75,7 @@ public class VoteAnswerHandlerTests
         Assert.Equal(1, answer.UpVotes);
         Assert.Equal(0, answer.DownVotes);
         Assert.Equal(
-            ScoreRules.Upvote,
+            initialScore + ScoreRules.Upvote,
             answer.Score);
 
         _unitOfWorkMock.Verify(
@@ -105,10 +110,11 @@ public class VoteAnswerHandlerTests
         SetupNoExistingVote(
             voterUserId,
             answer.Id);
+        SetupAnswerAfterCommit(answer);
 
-        var handler = CreateHandler();
+        var initialScore = answer.Score;
 
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
@@ -117,10 +123,9 @@ public class VoteAnswerHandlerTests
         Assert.Equal(0, answer.UpVotes);
         Assert.Equal(1, answer.DownVotes);
         Assert.Equal(
-            -ScoreRules.Downvote,
+            initialScore - ScoreRules.Downvote,
             answer.Score);
-
-        _unitOfWorkMock.Verify(
+          _unitOfWorkMock.Verify(
             x => x.Votes.AddAsync(
                 It.Is<Vote>(v =>
                     v.UserId == voterUserId &&
@@ -134,9 +139,9 @@ public class VoteAnswerHandlerTests
             Times.Once);
     }
 
-    // =========================================================
-    // Not Found
-    // =========================================================
+    // ============================================================
+    // Answer Not Found
+    // ============================================================
 
     [Fact]
     public async Task Handle_AnswerNotFound_ReturnsNotFound()
@@ -155,13 +160,12 @@ public class VoteAnswerHandlerTests
                 true))
             .ReturnsAsync((Answer?)null);
 
-        var handler = CreateHandler();
-
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
         Assert.False(response.Succeeded);
+
         Assert.Equal(
             SystemMessages.RECORD_NOT_FOUND,
             response.Message);
@@ -185,9 +189,9 @@ public class VoteAnswerHandlerTests
             Times.Never);
     }
 
-    // =========================================================
+    // ============================================================
     // Own Answer
-    // =========================================================
+    // ============================================================
 
     [Fact]
     public async Task Handle_VoteOwnAnswer_ReturnsBadRequest()
@@ -204,9 +208,7 @@ public class VoteAnswerHandlerTests
 
         SetupAnswer(answer);
 
-        var handler = CreateHandler();
-
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
@@ -235,9 +237,9 @@ public class VoteAnswerHandlerTests
             Times.Never);
     }
 
-    // =========================================================
-    // Duplicate Upvote
-    // =========================================================
+    // ============================================================
+    // Duplicate Votes
+    // ============================================================
 
     [Fact]
     public async Task Handle_DuplicateUpvote_ReturnsBadRequest()
@@ -248,7 +250,6 @@ public class VoteAnswerHandlerTests
         var answer = EndpointTestData.Answer(
             userId: answerOwnerId);
 
-        // The answer already contains the existing upvote.
         answer.ApplyVote(VoteType.Upvote);
 
         var existingVote = EndpointTestData.QuestionVote(
@@ -268,10 +269,7 @@ public class VoteAnswerHandlerTests
             existingVote);
 
         var initialScore = answer.Score;
-
-        var handler = CreateHandler();
-
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
@@ -285,6 +283,10 @@ public class VoteAnswerHandlerTests
         Assert.Equal(0, answer.DownVotes);
         Assert.Equal(initialScore, answer.Score);
 
+        Assert.Equal(
+            VoteType.Upvote,
+            existingVote.Type);
+
         _unitOfWorkMock.Verify(
             x => x.Votes.AddAsync(
                 It.IsAny<Vote>()),
@@ -296,10 +298,6 @@ public class VoteAnswerHandlerTests
             Times.Never);
     }
 
-    // =========================================================
-    // Duplicate Downvote
-    // =========================================================
-
     [Fact]
     public async Task Handle_DuplicateDownvote_ReturnsBadRequest()
     {
@@ -309,7 +307,6 @@ public class VoteAnswerHandlerTests
         var answer = EndpointTestData.Answer(
             userId: answerOwnerId);
 
-        // The answer already contains the existing downvote.
         answer.ApplyVote(VoteType.Downvote);
 
         var existingVote = EndpointTestData.QuestionVote(
@@ -330,9 +327,7 @@ public class VoteAnswerHandlerTests
 
         var initialScore = answer.Score;
 
-        var handler = CreateHandler();
-
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
@@ -346,6 +341,10 @@ public class VoteAnswerHandlerTests
         Assert.Equal(1, answer.DownVotes);
         Assert.Equal(initialScore, answer.Score);
 
+        Assert.Equal(
+            VoteType.Downvote,
+            existingVote.Type);
+
         _unitOfWorkMock.Verify(
             x => x.Votes.AddAsync(
                 It.IsAny<Vote>()),
@@ -357,9 +356,9 @@ public class VoteAnswerHandlerTests
             Times.Never);
     }
 
-    // =========================================================
-    // Change Upvote -> Downvote
-    // =========================================================
+    // ============================================================
+    // Change Vote
+    // ============================================================
 
     [Fact]
     public async Task Handle_ChangeUpvoteToDownvote_UpdatesVoteCountsAndScore()
@@ -370,7 +369,6 @@ public class VoteAnswerHandlerTests
         var answer = EndpointTestData.Answer(
             userId: answerOwnerId);
 
-        // The answer already contains the existing upvote.
         answer.ApplyVote(VoteType.Upvote);
 
         var existingVote = EndpointTestData.QuestionVote(
@@ -388,12 +386,11 @@ public class VoteAnswerHandlerTests
             voterUserId,
             answer.Id,
             existingVote);
+        SetupAnswerAfterCommit(answer);
 
         var initialScore = answer.Score;
 
-        var handler = CreateHandler();
-
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
@@ -422,11 +419,6 @@ public class VoteAnswerHandlerTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
-
-    // =========================================================
-    // Change Downvote -> Upvote
-    // =========================================================
-
     [Fact]
     public async Task Handle_ChangeDownvoteToUpvote_UpdatesVoteCountsAndScore()
     {
@@ -436,7 +428,6 @@ public class VoteAnswerHandlerTests
         var answer = EndpointTestData.Answer(
             userId: answerOwnerId);
 
-        // The answer already contains the existing downvote.
         answer.ApplyVote(VoteType.Downvote);
 
         var existingVote = EndpointTestData.QuestionVote(
@@ -454,12 +445,11 @@ public class VoteAnswerHandlerTests
             voterUserId,
             answer.Id,
             existingVote);
+        SetupAnswerAfterCommit(answer);
 
         var initialScore = answer.Score;
 
-        var handler = CreateHandler();
-
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
@@ -489,118 +479,36 @@ public class VoteAnswerHandlerTests
             Times.Once);
     }
 
-    // =========================================================
-    // Save Changes
-    // =========================================================
+    // ============================================================
+    // Exception Handling
+    // ============================================================
 
     [Fact]
-    public async Task Handle_NewVote_SavesChangesOnce()
-    {
-        var answerOwnerId = Guid.NewGuid();
-        var voterUserId = Guid.NewGuid();
-
-        var answer = EndpointTestData.Answer(
-            userId: answerOwnerId);
-
-        var command = new VoteAnswerCommand(
-            answer.Id,
-            voterUserId,
-            VoteType.Upvote);
-
-        SetupAnswer(answer);
-        SetupNoExistingVote(
-            voterUserId,
-            answer.Id);
-
-        var handler = CreateHandler();
-
-        await handler.Handle(
-            command,
-            CancellationToken.None);
-
-        _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(
-                It.IsAny<CancellationToken>()),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_ChangedVote_DoesNotAddNewVote()
-    {
-        var answerOwnerId = Guid.NewGuid();
-        var voterUserId = Guid.NewGuid();
-
-        var answer = EndpointTestData.Answer(
-            userId: answerOwnerId);
-
-        answer.ApplyVote(VoteType.Upvote);
-
-        var existingVote = EndpointTestData.QuestionVote(
-            voterUserId,
-            answer.Id,
-            VoteType.Upvote);
-
-        var command = new VoteAnswerCommand(
-            answer.Id,
-            voterUserId,
-            VoteType.Downvote);
-
-        SetupAnswer(answer);
-        SetupExistingVote(
-            voterUserId,
-            answer.Id,
-            existingVote);
-
-        var handler = CreateHandler();
-
-        var response = await handler.Handle(
-            command,
-            CancellationToken.None);
-
-        Assert.True(response.Succeeded);
-
-        _unitOfWorkMock.Verify(
-            x => x.Votes.AddAsync(
-                It.IsAny<Vote>()),
-            Times.Never);
-
-        _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(
-                It.IsAny<CancellationToken>()),
-            Times.Once);
-    }
-
-    // =========================================================
-    // Exceptions
-    // =========================================================
-
-    [Fact]
-    public async Task Handle_RepositoryThrowsException_ReturnsBadRequest()
+    public async Task Handle_RepositoryThrows_ReturnsBadRequest()
     {
         var answerId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
+
+        const string exceptionMessage = "Database error";
 
         _unitOfWorkMock
             .Setup(x => x.Answers.GetByIdAsync(
                 answerId,
                 true))
-            .ThrowsAsync(
-                new Exception("Database error"));
+            .ThrowsAsync(new Exception(exceptionMessage));
 
         var command = new VoteAnswerCommand(
             answerId,
             voterUserId,
             VoteType.Upvote);
 
-        var handler = CreateHandler();
-
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
         Assert.False(response.Succeeded);
         Assert.Equal(
-            "Database error",
+            exceptionMessage,
             response.Message);
 
         _unitOfWorkMock.Verify(
@@ -610,18 +518,13 @@ public class VoteAnswerHandlerTests
     }
 
     [Fact]
-    public async Task Handle_SaveChangesThrowsException_ReturnsBadRequest()
+    public async Task Handle_SaveChangesThrows_ReturnsBadRequest()
     {
         var answerOwnerId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
         var answer = EndpointTestData.Answer(
             userId: answerOwnerId);
-
-        var command = new VoteAnswerCommand(
-            answer.Id,
-            voterUserId,
-            VoteType.Upvote);
 
         SetupAnswer(answer);
         SetupNoExistingVote(
@@ -631,12 +534,14 @@ public class VoteAnswerHandlerTests
         _unitOfWorkMock
             .Setup(x => x.SaveChangesAsync(
                 It.IsAny<CancellationToken>()))
-            .ThrowsAsync(
-                new Exception("Save failed"));
+            .ThrowsAsync(new Exception("Save failed"));
 
-        var handler = CreateHandler();
+        var command = new VoteAnswerCommand(
+            answer.Id,
+            voterUserId,
+            VoteType.Upvote);
 
-        var response = await handler.Handle(
+        var response = await CreateHandler().Handle(
             command,
             CancellationToken.None);
 
@@ -651,26 +556,20 @@ public class VoteAnswerHandlerTests
             Times.Once);
     }
 
-    // =========================================================
+    // ============================================================
     // Cancellation Token
-    // =========================================================
+    // ============================================================
 
     [Fact]
-    public async Task Handle_PassesCancellationTokenToVoteRepository()
+    public async Task Handle_PassesCancellationTokenToVoteLookup()
     {
         var answerOwnerId = Guid.NewGuid();
         var voterUserId = Guid.NewGuid();
 
         var answer = EndpointTestData.Answer(
             userId: answerOwnerId);
-
         var cancellationToken =
             new CancellationTokenSource().Token;
-
-        var command = new VoteAnswerCommand(
-            answer.Id,
-            voterUserId,
-            VoteType.Upvote);
 
         SetupAnswer(answer);
 
@@ -682,11 +581,18 @@ public class VoteAnswerHandlerTests
                 cancellationToken))
             .ReturnsAsync((Vote?)null);
 
-        var handler = CreateHandler();
+        SetupAnswerAfterCommit(answer);
 
-        await handler.Handle(
+        var command = new VoteAnswerCommand(
+            answer.Id,
+            voterUserId,
+            VoteType.Upvote);
+
+        var response = await CreateHandler().Handle(
             command,
             cancellationToken);
+
+        Assert.True(response.Succeeded);
 
         _unitOfWorkMock.Verify(
             x => x.Votes.GetUserVoteForAnswerAsync(
@@ -709,19 +615,18 @@ public class VoteAnswerHandlerTests
         var cancellationToken =
             new CancellationTokenSource().Token;
 
+        SetupAnswer(answer);
+        SetupNoExistingVote(
+            voterUserId,
+            answer.Id);
+        SetupAnswerAfterCommit(answer);
+
         var command = new VoteAnswerCommand(
             answer.Id,
             voterUserId,
             VoteType.Upvote);
 
-        SetupAnswer(answer);
-        SetupNoExistingVote(
-            voterUserId,
-            answer.Id);
-
-        var handler = CreateHandler();
-
-        await handler.Handle(
+        await CreateHandler().Handle(
             command,
             cancellationToken);
 
@@ -731,9 +636,9 @@ public class VoteAnswerHandlerTests
             Times.Once);
     }
 
-    // =========================================================
+    // ============================================================
     // Helpers
-    // =========================================================
+    // ============================================================
 
     private void SetupAnswer(Answer answer)
     {
@@ -741,6 +646,15 @@ public class VoteAnswerHandlerTests
             .Setup(x => x.Answers.GetByIdAsync(
                 answer.Id,
                 true))
+            .ReturnsAsync(answer);
+    }
+
+    private void SetupAnswerAfterCommit(Answer answer)
+    {
+        _unitOfWorkMock
+            .Setup(x => x.Answers.GetByIdAsync(
+                answer.Id,
+                false))
             .ReturnsAsync(answer);
     }
 
