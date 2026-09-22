@@ -33,6 +33,17 @@ namespace Dalleni.Application.Features.Votes.Commands.DeleteVote
             {
                 return _responseHandler.NotFound<bool>(SystemMessages.UNAUTHORIZED);
             }
+          if (vote.AnswerId != null && vote.AnswerId.HasValue)
+          {
+            var answer = await _unitOfWork.Answers.GetByIdAsync((Guid)vote.AnswerId, true);
+            if (answer is not null)
+                 answer.DecreaseVote(voteType:vote.Type);
+          }
+          else
+          {
+                 var question = await _unitOfWork.Questions.GetByIdAsync((Guid)vote.QuestionId, true);
+                 question.DecreaseVote(voteType:vote.Type);
+          }
          _unitOfWork.Votes.Remove(vote);
          await _unitOfWork.SaveChangesAsync();
          return _responseHandler.Success(true ,SystemMessages.SUCCESS);
