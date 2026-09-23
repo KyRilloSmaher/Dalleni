@@ -8,12 +8,14 @@ using Dalleni.Application.Features.Tags.Queries.GetTopTags;
 using Dalleni.Domin.Helpers;
 using Dalleni.Domin.ResponsePattern;
 using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dalleni.API.Controllers
 {
     [ApiVersion("1.0")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TagsController : BaseController
     {
         public TagsController(IMediator mediator) : base(mediator)
@@ -32,7 +34,8 @@ namespace Dalleni.API.Controllers
         [ProducesResponseType(typeof(Response<PaginatedResult<QuestionSummaryDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByTagAsync([FromQuery] PagedRequest request , [FromRoute] Guid id)
         {
-            var result = await _mediator.Send(new GetByTagQuery(id ,request));
+            var userId = GetCurrentUserId();
+            var result = await _mediator.Send(new GetByTagQuery(id ,request,userId));
             return FinalResponse(result);
         }
     }

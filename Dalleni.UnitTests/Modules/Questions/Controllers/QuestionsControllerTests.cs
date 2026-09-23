@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Dalleni.API.Controllers;
 using Dalleni.Application.DTOs.Requests.Base;
 using Dalleni.Application.DTOs.Requests.Questions;
@@ -18,6 +19,7 @@ using Dalleni.UnitTests.Shared.Builders;
 using Dalleni.UnitTests.Shared.Controllers;
 using Dalleni.UnitTests.Shared.Responses;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -39,23 +41,54 @@ public class QuestionsControllerTests
 
         Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
     }
-
-    [Fact]
+[Fact]
 public async Task GetAllPagedAsync_SendsPagedQuery()
 {
-    var response = ResponseFactory.Ok<PaginatedResult<QuestionSummaryDto>>(EndpointTestData.PagedQuestions());
-    
-    // ✅ Use IRequest<Response<PaginatedResult<QuestionSummaryDto>>>
-    _mediator.Setup(x => x.Send(
-        It.IsAny<IRequest<Response<PaginatedResult<QuestionSummaryDto>>>>(), 
-        It.IsAny<CancellationToken>()))
+    // Arrange
+    var response =
+        ResponseFactory.Ok<PaginatedResult<QuestionSummaryDto>>(
+            EndpointTestData.PagedQuestions());
+
+    var userId = Guid.NewGuid();
+    var pagedRequest = new PagedRequest();
+
+    _mediator
+        .Setup(x => x.Send(
+            It.IsAny<IRequest<Response<PaginatedResult<QuestionSummaryDto>>>>(),
+            It.IsAny<CancellationToken>()))
         .ReturnsAsync(response);
-    
+
     var controller = new QuestionsController(_mediator.Object);
 
-    var result = await controller.GetAllPagedAsync(new PagedRequest());
+    var claims = new[]
+    {
+        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+    };
 
-    Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
+    controller.ControllerContext = new ControllerContext
+    {
+        HttpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(claims, "TestAuth"))
+        }
+    };
+
+    // Act
+    var result = await controller.GetAllPagedAsync(pagedRequest);
+
+    // Assert
+    Assert.Same(
+        response,
+        Assert.IsType<OkObjectResult>(result).Value);
+
+    _mediator.Verify(
+        x => x.Send(
+            It.Is<GetPagedQuestionsQuery>(q =>
+                q.request == pagedRequest &&
+                q.UserId == userId),
+            It.IsAny<CancellationToken>()),
+        Times.Once);
 }
 
 

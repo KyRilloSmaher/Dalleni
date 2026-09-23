@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Dalleni.Application.Commans.Extensions;
 using Dalleni.Application.DTOs.Responses.Questions;
+using Dalleni.Application.DTOs.Responses.Tags;
+using Dalleni.Domin.Enums;
 using Dalleni.Domin.Helpers;
 using Dalleni.Domin.Interfaces.Handlers;
 using Dalleni.Domin.Interfaces.Repositories;
@@ -29,6 +31,7 @@ namespace Dalleni.Application.Features.Questions.Queries.GetByTag
         {
             var PagedRequest = request.pagedRequest;
             var tagId = request.TagId;
+             Guid currentUserId = request.UserId;
 
             var tagExists = await _unitOfWork.Tags.ExistsAsync(tagId);
             if (!tagExists)
@@ -37,7 +40,42 @@ namespace Dalleni.Application.Features.Questions.Queries.GetByTag
             }
 
             var Questions = await _unitOfWork.Questions.GetByTagIdAsync(tagId,cancellationToken);
-            var projected = _mapper.ProjectTo<QuestionSummaryDto>(Questions);
+           var projected = Questions.Select(q => new QuestionSummaryDto
+            {
+                Id = q.Id,
+                Title = q.Title,
+                Content = q.Content,
+
+                CategoryId = q.CategoryId,
+                CategoryName = q.Category.Name,
+
+                UserId = q.UserId,
+                AuthorName = q.User.UserName,
+                AuthorProfileImageUrl = q.User.ProfileImageUrl,
+                AuthorReputation = q.User.Reputation,
+
+                UpVotes = q.UpVotes,
+                DownVotes = q.DownVotes,
+                Views = q.Views,
+
+                AnswersCount = q.Answers.Count(),
+
+                IsClosed = q.IsClosed,
+                Score = q.Score,
+                CreatedAt = q.CreatedAt,
+
+                Tags = q.QuestionTags
+                    .Select(qt => new TagDto
+                    {
+                        Id = qt.Tag.Id,
+                        Name = qt.Tag.Name
+                    })
+                    .ToList(),
+
+                UpVotedByCurrentUser = q.Votes.Any(v =>v.UserId == currentUserId && v.Type == VoteType.Upvote),
+
+                DownVotedByCurrentUser = q.Votes.Any(v =>v.UserId == currentUserId && v.Type == VoteType.Downvote)
+            });
             var result = await projected.ToPaginatedListAsync(PagedRequest.PageNumber, PagedRequest.PageSize);
             return _responseHandler.Success(result, SystemMessages.DATA_RETRIEVED);
         }

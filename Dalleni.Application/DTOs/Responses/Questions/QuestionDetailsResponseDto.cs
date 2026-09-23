@@ -1,5 +1,6 @@
 using Dalleni.Application.DTOs.Responses.Answers;
 using Dalleni.Application.DTOs.Responses.Tags;
+using Dalleni.Domin.Enums;
 
 namespace Dalleni.Application.DTOs.Responses.Questions
 {
@@ -46,5 +47,8 @@ namespace Dalleni.Application.DTOs.Responses.Questions
         public double Score { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<TagDto> Tags { get; set; } = new();
+        public bool UpVotedByCurrentUser {get; set;}
+        public bool DownVotedByCurrentUser {get; set;}
+
     }
 }

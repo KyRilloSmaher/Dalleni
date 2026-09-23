@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Dalleni.API.Controllers;
 using Dalleni.Application.DTOs.Requests.Base;
 using Dalleni.Application.DTOs.Responses.Questions;
@@ -8,6 +9,7 @@ using Dalleni.Domin.ResponsePattern;
 using Dalleni.UnitTests.Shared.Builders;
 using Dalleni.UnitTests.Shared.Responses;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -42,13 +44,29 @@ public async Task GetByTagAsync_SendsGetByTagQuery()
         PageSize = 10,
         TotalCount = 1
     });
+    var userId = Guid.NewGuid();
+    var pagedRequest = new PagedRequest();
+
+    var controller = new TagsController(_mediator.Object);
+
+    var claims = new[]
+    {
+        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+    };
+
+    controller.ControllerContext = new ControllerContext
+    {
+        HttpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(claims, "TestAuth"))
+        }
+    };
 
     _mediator.Setup(x => x.Send(It.IsAny<GetByTagQuery>(), It.IsAny<CancellationToken>()))
         .ReturnsAsync(response);
 
-    var controller = new TagsController(_mediator.Object);
-
-    var result = await controller.GetByTagAsync(new PagedRequest(), Guid.NewGuid());
+    var result = await controller.GetByTagAsync(pagedRequest, Guid.NewGuid());
 
     Assert.Same(response, Assert.IsType<OkObjectResult>(result).Value);
 }

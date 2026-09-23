@@ -12,7 +12,7 @@ namespace Dalleni.Domin.Interfaces.Repositories
         Task<IEnumerable<Question>> GetTopQuestionsAsync(int count, CancellationToken cancellationToken = default);
         Task<IQueryable<Question>> GetByTagIdAsync(Guid tagId, CancellationToken cancellationToken = default);
         Task<IEnumerable<Question>> GetByTagIdsAsync(IEnumerable<Guid> tagIds, CancellationToken cancellationToken = default);
-        Task<IQueryable<Question>> GetHotQuestionsAsync( CancellationToken cancellationToken = default);
+        IQueryable<Question> GetHotQuestionsAsync( CancellationToken cancellationToken = default);
         Task<IEnumerable<Question>> GetUnansweredQuestionsAsync(CancellationToken cancellationToken = default);
         Task<IEnumerable<Question>> GetMostViewedAsync(int count, CancellationToken cancellationToken = default);
         Task<IEnumerable<Question>> GetRelatedQuestionsAsync(Guid questionId, int count, CancellationToken cancellationToken = default);

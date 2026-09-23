@@ -7,8 +7,6 @@ using Dalleni.Application.Features.Questions.Commands.CloseQuestion;
 using Dalleni.Application.Features.Questions.Commands.CreateQuestion;
 using Dalleni.Application.Features.Questions.Commands.DeleteQuestion;
 using Dalleni.Application.Features.Questions.Commands.UpdateQuestion;
-using Dalleni.Application.Features.Questions.Queries;
-using Dalleni.Application.Features.Questions.Queries.GetByTag;
 using Dalleni.Application.Features.Questions.Queries.GetByUser;
 using Dalleni.Application.Features.Questions.Queries.GetPagedQuestions;
 using Dalleni.Application.Features.Questions.Queries.GetQuestionDetails;
@@ -20,13 +18,14 @@ using Dalleni.Domin.ResponsePattern;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace Dalleni.API.Controllers
 {
     [ApiVersion("1.0")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class QuestionsController : BaseController
     {
         public QuestionsController(IMediator mediator) : base(mediator)
@@ -45,12 +44,12 @@ namespace Dalleni.API.Controllers
         [ProducesResponseType(typeof(Response<PaginatedResult<QuestionSummaryDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllPagedAsync([FromQuery] PagedRequest request)
         {
-            var result = await _mediator.Send(new GetPagedQuestionsQuery(request));
+            var userId = GetCurrentUserId();
+            var result = await _mediator.Send(new GetPagedQuestionsQuery(request,userId));
             return FinalResponse(result);
         }
 
         [HttpGet(APIROUTES.Questions.UserQuestions)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(Response<IEnumerable<QuestionSummaryDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUserQuestionsAsync()
         {
@@ -85,7 +84,6 @@ namespace Dalleni.API.Controllers
         }
 
         [HttpPost(APIROUTES.Questions.Close)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
         public async Task<IActionResult> CloseAsync([FromRoute] Guid id)
         {
@@ -95,7 +93,6 @@ namespace Dalleni.API.Controllers
         }
 
         [HttpPost(APIROUTES.Questions.AcceptAnswer)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
         public async Task<IActionResult> AcceptAnswerAsync([FromRoute] Guid id, [FromQuery] Guid questionId)
         {
@@ -104,7 +101,6 @@ namespace Dalleni.API.Controllers
             return FinalResponse(result);
         }
         [HttpPost(APIROUTES.Questions.Create)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(Response<Guid>), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateAsync([FromBody] CreateQuestionRequestDto dto)
         {
@@ -114,7 +110,6 @@ namespace Dalleni.API.Controllers
         }
 
         [HttpPut(APIROUTES.Questions.Update)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] UpdateQuestionRequestDto dto)
         {
@@ -124,7 +119,6 @@ namespace Dalleni.API.Controllers
         }
 
         [HttpDelete(APIROUTES.Questions.Delete)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {

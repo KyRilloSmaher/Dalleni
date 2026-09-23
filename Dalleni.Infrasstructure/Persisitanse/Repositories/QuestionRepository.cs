@@ -18,6 +18,7 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         {
             return GetQuery(asTracked)
                 .Include(x => x.User)
+                .Include(x=>x.Votes)
                 .Include(x => x.Category)
                 .Include(x => x.QuestionTags)
                     .ThenInclude(qt => qt.Tag)
@@ -140,7 +141,7 @@ namespace Dalleni.Infrastructure.Persisitanse.Repositories
         // -----------------------------
         // Questions (Ranking)
         // -----------------------------
-        public async Task<IQueryable<Question>> GetHotQuestionsAsync( CancellationToken cancellationToken = default)
+        public IQueryable<Question> GetHotQuestionsAsync( CancellationToken cancellationToken = default)
         {
 
             return  GetDetailedQuestionQuery(false)
