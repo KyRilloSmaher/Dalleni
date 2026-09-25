@@ -38,7 +38,7 @@ namespace Dalleni.API.Controllers
         /// <param name="deviceId">The ID of the device to deactivate.</param>
         /// <returns></returns>
         [HttpPut(APIROUTES.UserDevices.DeactivateDevice)]
-        [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Response<Guid>), StatusCodes.Status200OK)]
         public async Task<IActionResult> DeactivateDeviceAsync([FromQuery] Guid deviceId)
         {
             var userId = GetCurrentUserId();
