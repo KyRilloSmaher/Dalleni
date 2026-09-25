@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Dalleni.Application.Features.UserDevices.Commands.RegisterDevice
 {
-    public record RegisterDeviceCommand(Guid UserId, RegisterDeviceRequestDto Request): IRequest<Response<bool>>;
+    public record RegisterDeviceCommand(Guid UserId, RegisterDeviceRequestDto Request): IRequest<Response<Guid>>;
 }
