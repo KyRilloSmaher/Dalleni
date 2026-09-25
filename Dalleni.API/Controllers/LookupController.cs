@@ -7,6 +7,9 @@ namespace Dalleni.API.Controllers;
 [Route("api/v1/[controller]")]
 public sealed class LookupsController : BaseController
 {
+                public LookupsController(IMediator mediator) : base(mediator)
+        {
+        }
     /// <summary>
     /// Gets all available vote types.
     /// </summary>
