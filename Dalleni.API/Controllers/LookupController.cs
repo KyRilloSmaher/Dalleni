@@ -1,6 +1,7 @@
 using Dalleni.Domin.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Dalleni.API.Bases;
+using MediatR;
 namespace Dalleni.API.Controllers;
 
 [ApiController]
