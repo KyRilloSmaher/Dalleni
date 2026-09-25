@@ -7,7 +7,7 @@ using Dalleni.Domin.Helpers;
 
 namespace Dalleni.Application.Features.UserDevices.Commands.RegisterDevice
 {
-    public class RegisterDeviceCommandHandler : IRequestHandler<RegisterDeviceCommand, Response<bool>>
+    public class RegisterDeviceCommandHandler : IRequestHandler<RegisterDeviceCommand, Response<Guid>>
     {
 
         private readonly IUnitOfWork _unitOfWork;
@@ -21,7 +21,7 @@ namespace Dalleni.Application.Features.UserDevices.Commands.RegisterDevice
         }
        
 
-        public async Task<Response<bool>> Handle( RegisterDeviceCommand request,CancellationToken cancellationToken)
+        public async Task<Response<Guid>> Handle( RegisterDeviceCommand request,CancellationToken cancellationToken)
         {
             var userId = request.UserId;
 
@@ -34,14 +34,14 @@ namespace Dalleni.Application.Features.UserDevices.Commands.RegisterDevice
             {
                 if (existingDevice.UserId != userId)
                 {
-                    return _responseHandler.BadRequest<bool>(SystemMessages.DEVICE_ALREADY_REGISTERED);
+                    return _responseHandler.BadRequest<Guid>(SystemMessages.DEVICE_ALREADY_REGISTERED);
                 }
 
                 existingDevice.UpdateToken(request.Request.DeviceToken);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return _responseHandler.Success<bool>(true);
+                return _responseHandler.Success<Guid>(existingDevice.Id);
             }
 
             var device = UserDevice.Create(
@@ -53,7 +53,7 @@ namespace Dalleni.Application.Features.UserDevices.Commands.RegisterDevice
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return _responseHandler.Success<bool>(true, SystemMessages.RECORD_ADDED);
+            return _responseHandler.Success<Guid>(device. Id, SystemMessages.RECORD_ADDED);
         }
     }
 }
