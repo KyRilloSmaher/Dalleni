@@ -10,7 +10,7 @@ namespace Dalleni.Application.Validators.UserDevices
         {
             RuleFor(x => x.DeviceToken)
                 .NotEmpty().WithMessage("Device token is required.")
-                .MaximumLength(100).WithMessage("Device token cannot exceed 100 characters.");
+                .MaximumLength(1000).WithMessage("Device token cannot exceed 1000 characters.");
             RuleFor(x => x.Platform)
                 .NotEmpty().WithMessage("Platform is required.")
                 .IsInEnum().WithMessage("Invalid platform value.");
